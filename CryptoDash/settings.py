@@ -31,6 +31,9 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'Analysis.apps.AnalysisConfig',
+    'API.apps.ApiConfig',
+    'Redis.apps.RedisConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
