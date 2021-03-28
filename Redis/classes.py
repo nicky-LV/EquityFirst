@@ -19,19 +19,34 @@ class Redis:
         # default expiration date (in seconds)
         self.default_expiry = 10
 
-    def get(self, key):
+    def get(self, key=None, all_keys=False):
         # data is stored as bytes (8 bits(binary)) in memory). A bytestring is a character + encoding
         # we can decode these bytestrings into english, by decoding with utf-8.
 
-        if self.db.get(key) is None:
-            raise KeyError("Key does not exist within the database.")
+        if all_keys:
+            return [{key: self.get(key=key)} for key in self.db.scan_iter()]
 
         else:
-            return self.db.get(key).decode('utf-8')
+            if self.db.get(key) is None:
+                raise KeyError("Key does not exist within the database.")
 
-    def set(self, key, value, time=10):
-        # todo: check if key already exists in redis database
-        # by default key/value pairs are stored for self.default_expiry seconds
+            else:
+                return self.db.get(key).decode('utf-8')
 
-        self.db.set(key, value, ex=self.default_expiry)
+    def set(self, key, value, time=86400):
+        # default 24 hour expiry date
+        self.db.setex(key, time, value)
         return f"{key}: {value} stored for {time} seconds."
+
+    def delete(self, *keys, all_keys=False):
+        if all_keys:
+            for key in self.db.scan_iter():
+                self.db.delete(key)
+
+        else:
+            try:
+                for key in keys:
+                    self.db.delete(key)
+
+            except KeyError:
+                print(f"Key does not exist")
