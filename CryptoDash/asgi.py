@@ -9,7 +9,17 @@ https://docs.djangoproject.com/en/3.1/howto/deployment/asgi/
 
 import os
 from django.core.asgi import get_asgi_application
+from django.urls import path
+from API.consumers import CryptoConsumer
+from channels.routing import ProtocolTypeRouter, URLRouter
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'CryptoDash.settings')
 
-application = get_asgi_application()
+application = ProtocolTypeRouter({
+    "http": get_asgi_application(),
+
+    # websocket protocol
+    "websocket": URLRouter([
+        path('datastream/', CryptoConsumer.as_asgi())
+    ])
+})
