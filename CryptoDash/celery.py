@@ -1,22 +1,12 @@
 import os
-
 from celery import Celery
+from celery.schedules import crontab
+from CryptoDash.tasks import get_price_by_minute
 
-# set the default Django settings module for the 'celery' program.
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'CryptoDash.settings')
+os.environ["DJANGO_SETTINGS_MODULE"] = "CryptoDash.settings"
+# RabbitMQ message broker
+app = Celery('CryptoDash', broker="amqp://localhost")
 
-app = Celery('CryptoDash')
-
-# Using a string here means the worker doesn't have to serialize
-# the configuration object to child processes.
-# - namespace='CELERY' means all celery-related configuration keys
-#   should have a `CELERY_` prefix.
-app.config_from_object('django.conf:settings', namespace='CELERY')
-
-# Load task modules from all registered Django app configs.
+# imports Celery-related settings from settings.py, starting with CELERY. (e.g. CELERY_BROKER_URL = ...)
+app.config_from_object("CryptoDash.celery_settings", namespace="CELERY")
 app.autodiscover_tasks()
-
-
-@app.task(bind=True)
-def debug_task(self):
-    print(f'Request: {self.request!r}')

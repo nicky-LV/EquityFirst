@@ -26,6 +26,7 @@ SECRET_KEY = 'i43e-pb0h(osd-!d+we)jx&gq%s4tt6=6(tdrnx+_mmwxb4lyz'
 DEBUG = True
 
 ALLOWED_HOSTS = []
+ASGI_APPLICATION = 'CryptoDash.asgi.application'
 
 
 # Application definition

@@ -30,6 +30,7 @@ class Redis:
             return self.db.get(key).decode('utf-8')
 
     def set(self, key, value, time=10):
+        # todo: check if key already exists in redis database
         # by default key/value pairs are stored for self.default_expiry seconds
 
         self.db.set(key, value, ex=self.default_expiry)
