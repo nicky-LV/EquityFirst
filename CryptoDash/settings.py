@@ -25,17 +25,32 @@ SECRET_KEY = 'i43e-pb0h(osd-!d+we)jx&gq%s4tt6=6(tdrnx+_mmwxb4lyz'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# CORS settings
+# todo: do not allow in prod
+CORS_ALLOW_ALL_ORIGINS = True
+
+# CHANNELS settings
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("localhost", 6379)],
+        },
+    },
+}
+
 ALLOWED_HOSTS = []
 ASGI_APPLICATION = 'CryptoDash.asgi.application'
 
 
-# Application definition
+# Application definition(s)
 
 INSTALLED_APPS = [
     'Analysis.apps.AnalysisConfig',
     'API.apps.ApiConfig',
     'Redis.apps.RedisConfig',
     'django.contrib.admin',
+    'corsheaders',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -47,6 +62,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -54,6 +70,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+
 
 ROOT_URLCONF = 'CryptoDash.urls'
 
