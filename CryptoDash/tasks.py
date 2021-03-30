@@ -17,7 +17,6 @@ def get_price_every_10_mins():
     time, price = btc.current_price()
     key = f"{time.hour}:{time.minute}"
     db.set(key=key, value=price)
-    btc.cached_sma(key=time, price=price)
 
 
 @shared_task

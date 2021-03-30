@@ -36,7 +36,7 @@ class Redis:
         # we can decode these bytestrings into english (utf-8), by decoding with utf-8.
 
         if all_keys:
-            return sorted([{"time": key.decode('utf-8'), "price": float(self.get(key=key))} for key in self.db.scan_iter()], key=lambda x: list(x.keys())[0])
+            return sorted([{"time": key.decode('utf-8'), "price": float(self.get(key=key))} for key in self.db.scan_iter()], key=lambda x: x['time'])
 
         else:
             if self.db.get(key) is None:

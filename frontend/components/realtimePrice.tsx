@@ -24,6 +24,7 @@ const BTC5 = () => {
         }
 
         ws.onmessage = (response) => {
+            console.log(response.data)
             if ((JSON.parse(response.data)) != currentPrice){
                 if (currentPrice != null){
                     // @ts-ignore

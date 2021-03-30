@@ -41,8 +41,7 @@ CHANNEL_LAYERS = {
 
 ALLOWED_HOSTS = []
 ASGI_APPLICATION = 'CryptoDash.asgi.application'
-
-
+APPEND_SLASH = True
 # Application definition(s)
 
 INSTALLED_APPS = [
