@@ -11,6 +11,11 @@ interface dataType{
     price: Number
 }
 
+interface graphProps{
+    height: number
+    width: number
+}
+
 const Graph = (props: any) => {
     const [websocketInstance, setWebsocketInstance] = useState<any>(null);
     const [intradayData, setIntraDayData] = useState<dataType[] | []>([]);
@@ -35,7 +40,7 @@ const Graph = (props: any) => {
     }, [])
 
     return(
-        <LineChart data={intradayData} height={500} width={2000}>
+        <LineChart data={intradayData} height={props.height} width={props.width}>
             <Line type="monotone" dataKey="price" stroke="#8884d8" dot={false}/>
             <CartesianGrid stroke="#ccc" />
              <YAxis type="number" domain={['auto', 'auto']}/>
