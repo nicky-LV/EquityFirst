@@ -48,7 +48,7 @@ class BTC5Sec(AsyncConsumer):
         print("update client")
         await self.send({
             "type": "websocket.send",
-            "text": event["price"]
+            "text": json.dumps(event["text"])
         })
 
     async def websocket_connect(self, event):
