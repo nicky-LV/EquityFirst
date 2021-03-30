@@ -7,9 +7,14 @@ Settings for celery
 CELERY_IMPORTS = ('CryptoDash.tasks')
 CELERY_TIMEZONE = "UTC"
 CELERY_BEAT_SCHEDULE = {
-    'minute_crypto_price': {
-        'task': 'CryptoDash.tasks.get_price_by_minute',
+    'btc_5_min': {
+        'task': 'CryptoDash.tasks.get_price_every_10_mins',
         # seconds
-        'schedule': 60
+        'schedule': 600
+    },
+
+    'btc_5_sec': {
+        'task': 'CryptoDash.tasks.get_price_every_5_secs',
+        'schedule': 5
     }
 }

@@ -14,6 +14,15 @@ import redis
 import json
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
+import datetime
+
+
+def remaining_time():
+    now = datetime.datetime.now()
+    elapsed_seconds = (now.hour * (60**2)) + (now.minute * 60) + now.second
+    # time (until END OF DAY) = seconds in day - seconds elapsed within the day (at time of calculation)
+    remaining = 86400 - elapsed_seconds
+    return remaining
 
 
 class Redis:
@@ -36,8 +45,9 @@ class Redis:
             else:
                 return self.db.get(key).decode('utf-8')
 
-    # default 24 hour expiry date to set keys
-    def set(self, key, value, time=86400):
+    # default expiry date for each key is until END OF DAY
+    def set(self, key, value):
+        time = remaining_time()
         self.db.setex(key, time, value)
 
         # retrieves channel layer

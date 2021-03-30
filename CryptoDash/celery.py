@@ -1,7 +1,5 @@
 import os
 from celery import Celery
-from celery.schedules import crontab
-from CryptoDash.tasks import get_price_by_minute
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "CryptoDash.settings"
 # RabbitMQ message broker

@@ -1,4 +1,5 @@
 import {useEffect, useState} from "react";
+import { LineChart, Line, CartesianGrid, XAxis, YAxis } from 'recharts';
 
 enum websocketEnum {
     INITIALIZE = "initialize",
@@ -10,7 +11,7 @@ interface dataType{
     price: Number
 }
 
-const D3Graph = (props: any) => {
+const Graph = (props: any) => {
     const [websocketInstance, setWebsocketInstance] = useState<any>(null);
     const [intradayData, setIntraDayData] = useState<dataType[] | []>([]);
     useEffect(() => {
@@ -24,11 +25,8 @@ const D3Graph = (props: any) => {
 
         ws.onmessage = (payload) => {
             const data = JSON.parse(payload.data)
-            setIntraDayData((prevState: []) => {
-                return prevState.concat(data)
-            })
             console.log(data)
-            console.log(intradayData)
+            setIntraDayData(prevState => prevState.concat(data))
         }
 
         ws.onclose = () => {
@@ -37,8 +35,13 @@ const D3Graph = (props: any) => {
     }, [])
 
     return(
-        <button onClick={() => websocketInstance.send("update")}>Test channels</button>
+        <LineChart data={intradayData} height={500} width={2000}>
+            <Line type="monotone" dataKey="price" stroke="#8884d8" dot={false}/>
+            <CartesianGrid stroke="#ccc" />
+             <YAxis type="number" domain={['auto', 'auto']}/>
+            <XAxis dataKey="time" />
+        </LineChart>
     )
 }
 
-export default D3Graph
+export default Graph

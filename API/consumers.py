@@ -28,7 +28,6 @@ class CryptoConsumer(AsyncConsumer):
             })
 
     async def websocket_update(self, payload):
-        print("websocket update")
         await self.send({
             "type": "websocket.send",
             "text": payload['text']
@@ -42,3 +41,31 @@ class CryptoConsumer(AsyncConsumer):
         })
         raise StopConsumer
 
+
+class BTC5Sec(AsyncConsumer):
+
+    async def websocket_update(self, event):
+        print("update client")
+        await self.send({
+            "type": "websocket.send",
+            "text": event["price"]
+        })
+
+    async def websocket_connect(self, event):
+        await self.channel_layer.group_add('get_price_every_5_secs', self.channel_name)
+        await self.send({
+            "type": "websocket.accept"
+        })
+
+    async def websocket_receive(self, event):
+        await self.send({
+            "type": "websocket.send",
+            "text": "Received client message"
+        })
+
+    async def websocket_disconnect(self, event):
+        await self.send({
+            "type": "websocket.disconnect"
+        })
+
+        raise StopConsumer

@@ -19,7 +19,7 @@ class Crypto:
         # keys: price, symbol ("BTCUSD")
         json_response = requests.get(f"https://cloud.iexapis.com/stable/crypto/{ticker}usd/price/?token={self.token}").json()
         time = datetime.datetime.now()
-        return time, json_response['price']
+        return time, float(json_response['price'])
 
     def cached_sma(self, key, price):
         price = float(price)
