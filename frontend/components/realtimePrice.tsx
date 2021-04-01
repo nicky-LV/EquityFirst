@@ -8,8 +8,10 @@ import {
     StatArrow,
     StatGroup,
 } from "@chakra-ui/react"
+import {HStack} from "@chakra-ui/layout";
+import {Divider} from "@chakra-ui/layout";
 
-const BTC5 = () => {
+const BTC5 = (props) => {
     const [websocketInstance, setWebsocketInstance] = useState<WebSocket | null>(null);
     const [currentPrice, setCurrentPrice] = useState<Number | null>(null);
     const [percentageChange, setPercentageChange] = useState<Number>(0);
@@ -21,10 +23,11 @@ const BTC5 = () => {
 
         ws.onopen = () => {
             setWebsocketInstance(websocketInstance)
+            console.log("websocket started")
         }
 
         ws.onmessage = (response) => {
-            console.log(response.data)
+            console.log("message received")
             if ((JSON.parse(response.data)) != currentPrice){
                 if (currentPrice != null){
                     // @ts-ignore
@@ -55,20 +58,33 @@ const BTC5 = () => {
     }, [])
 
     return (
-        <Box maxW="lg" w="100%" h="20%" borderWidth="1px" overflow="hidden">
+        <Box bg="sidebar" maxW="lg" w="100%" h="18%" overflow="hidden">
             <Center h="100%" w="100%">
                 <StatGroup>
                     <Stat>
-                        <StatLabel>Realtime BTC price</StatLabel>
-                        <StatNumber>$ {currentPrice}</StatNumber>
+                        <StatLabel color="white">Realtime BTC price</StatLabel>
+                        <StatNumber color="white">$ {currentPrice}</StatNumber>
                         <StatHelpText>
-                            {/* @ts-ignore */}
-                            <StatArrow type={percentageChangeSign} />
-                            {percentageChange.toFixed(3) === "0.000" ? "< 0.001" : percentageChange.toFixed(3)} %
+                            <HStack>
+                                {/* @ts-ignore */}
+                                <StatArrow color={percentageChange > 0 ? "green.500" : "red.400"} type={percentageChangeSign} />
+                                {percentageChange.toFixed(4) === "0.0000" ?
+                                    ( <Text color={percentageChange > 0 ? "green.500" : "red.400"}> {"< 0.0001 %"} </Text>)
+                                    :
+                                    (
+                                        <Text color={percentageChange > 0 ? "green.500" : "red.400"}>
+                                            {percentageChange.toFixed(4)} %
+                                        </Text>)
+                                }
+
+
+                            </HStack>
                         </StatHelpText>
                     </Stat>
                 </StatGroup>
             </Center>
+
+
         </Box>
     )
 }

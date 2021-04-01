@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import { LineChart, Line, CartesianGrid, XAxis, YAxis } from 'recharts';
+import {LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip} from 'recharts';
 import axios from 'axios';
 
 enum websocketEnum {
@@ -52,9 +52,10 @@ const Graph = (props: any) => {
     return(
         <LineChart data={intradayData} height={props.height} width={props.width}>
             <Line type="monotone" dataKey="price" stroke="#8884d8" dot={false}/>
-            <CartesianGrid stroke="#ccc" />
+
             <YAxis type="number" domain={['auto', 'auto']}/>
             <XAxis dataKey="time" />
+            <Tooltip />
         </LineChart>
     )
 }

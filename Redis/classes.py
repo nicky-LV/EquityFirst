@@ -10,6 +10,14 @@ If we plan to expand for future stocks (e.g. equities) we should let external AP
 handle the storage of them, we will just be the middleman of data.
 """
 
+"""
+Equities are stored like so:
+
+<ticker> | <historical data>
+<ticker>-intraday | <intraday data (today)>
+< ticker >-<analysis_method> | <data returned from analysis method>
+"""
+
 import redis
 import json
 from channels.layers import get_channel_layer
@@ -49,18 +57,6 @@ class Redis:
     def set(self, key, value):
         time = remaining_time()
         self.db.setex(key, time, value)
-
-        # retrieves channel layer
-        channel_layer = get_channel_layer()
-
-        # sends message to all clients connected to "datastream" group in channel layer
-        # with the new price value
-        async_to_sync(channel_layer.group_send)(
-            'datastream',
-            {
-                "type": "websocket.update",
-                "text": json.dumps({"time": key, "price": float(value)})
-            })
 
     def delete(self, *keys, all_keys=False):
         if all_keys:

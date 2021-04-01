@@ -8,13 +8,13 @@ from rest_framework import status
 @api_view(["GET", "POST"])
 def moving_average(request):
     if request.method == "POST":
-        time_series = request.data['data']
+        time_series = list(request.data['data'])
         print(time_series)
 
         moving_averages = []
         price_sum = 0
 
-        for i in range(len(sorted(time_series, key=lambda x: list(x.keys())[0]))):
+        for i in range(len(sorted(time_series, key=lambda x: x))):
             datapoint = time_series[i]
             time, price = datapoint['time'], datapoint['price']
 

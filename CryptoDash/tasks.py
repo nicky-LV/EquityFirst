@@ -6,6 +6,7 @@ import json
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
+from Analysis.Equity.classes import cached_tickers
 db = Redis()
 btc = Crypto()
 
@@ -27,3 +28,9 @@ def get_price_every_5_secs():
         "type": "websocket.update",
         "text": price
     })
+
+
+@shared_task
+def equity_historical_data_daily():
+    for ticker in cached_tickers(ticker_only=True):
+        pass
