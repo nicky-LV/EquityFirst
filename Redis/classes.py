@@ -23,6 +23,7 @@ import json
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 import datetime
+from django.conf import settings
 
 
 def remaining_time():
@@ -54,9 +55,13 @@ class Redis:
                 return self.db.get(key).decode('utf-8')
 
     # default expiry date for each key is until END OF DAY
-    def set(self, key, value):
-        time = remaining_time()
-        self.db.setex(key, time, value)
+    def set(self, key, value, permanent=False):
+        if permanent:
+            self.db.set(name=key, value=value)
+
+        else:
+            time = remaining_time()
+            self.db.setex(key, time, value)
 
     def delete(self, *keys, all_keys=False):
         if all_keys:

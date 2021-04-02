@@ -22,7 +22,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'i43e-pb0h(osd-!d+we)jx&gq%s4tt6=6(tdrnx+_mmwxb4lyz'
 IEXCLOUD_TOKEN = "pk_9f620f2620ee41fa9b8eaef1a0e1b1e0"
-ALPHAVANTAGE_TOKEN = "PL04465ED8W1JOAB"
+ALPHAVANTAGE_TOKENS = [
+    "PL04465ED8W1JOAB",
+    "26JLAOMSPGFH39TW",
+    "CUF3EAMEH08BOVR4",
+    "JH8HQ588AP0MMLGY",
+    "XC25JK698I38JZ1Q"
+                       ]
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True

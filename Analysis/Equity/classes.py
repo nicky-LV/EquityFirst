@@ -35,7 +35,6 @@ class Base:
 
         self.db = Redis()
         self.IEX_token = settings.IEXCLOUD_TOKEN
-        self.AV_token = settings.ALPHAVANTAGE_TOKEN
 
 
 class EquityData(Base):
