@@ -9,10 +9,7 @@ import Navbar from "./navbar";
 import SecondaryLayout from "./secondaryLayout";
 
 
-const ContentLayout = (props) => {
-    const [graphHeight, setGraphHeight] = useState<Number>(0);
-    const [graphWidth, setGraphWidth] = useState<Number>(0);
-    const GraphGridItem = useRef()
+const AppLayout = (props) => {
 
     useEffect(() => {
 
@@ -27,10 +24,7 @@ const ContentLayout = (props) => {
             {/* GridItem 1 col, 12 rows */}
             <Sidebar />
 
-            {/* GridItem 12 cols, 1 row */}
-            <Navbar />
-
-            <GridItem colSpan={11} rowSpan={11}>
+            <GridItem colSpan={11} rowSpan={12}>
                 <SecondaryLayout />
             </GridItem>
 
@@ -38,4 +32,4 @@ const ContentLayout = (props) => {
     )
 }
 
-export default ContentLayout;
+export default AppLayout;

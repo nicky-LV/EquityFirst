@@ -1,13 +1,12 @@
-import {SET_TICKER_OPTIONS, SET_SELECTED_TICKER} from "./constants";
+import {SET_TICKER_OPTIONS, SET_SELECTED_EQUITY} from "./constants";
 
 interface intialStoreStateType {
     tickerOptions: [string] | [],
-    selectedTicker: string
+    selectedEquity: string
 }
 const initialStoreState: intialStoreStateType = {
     tickerOptions: [],
-    selectedTicker: "MSFT"
-
+    selectedEquity: "MSFT"
 }
 
 export function rootReducer(storeState=initialStoreState, dispatch){
@@ -15,7 +14,10 @@ export function rootReducer(storeState=initialStoreState, dispatch){
         case SET_TICKER_OPTIONS:
             return Object.assign({}, storeState, {tickerOptions: dispatch.payload})
 
-        case SET_SELECTED_TICKER:
+        case SET_SELECTED_EQUITY:
             return Object.assign({}, storeState, {selectedTicker: dispatch.payload})
+
+        default:
+            return Object.assign({}, storeState)
     }
 }

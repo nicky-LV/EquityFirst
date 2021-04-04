@@ -1,6 +1,10 @@
 import {Grid, GridItem, Box} from "@chakra-ui/layout";
 import Graph from "../graph/graph";
-import SelectTicker from "../cards/selectTicker";
+import SelectEquity from "../cards/selectEquity";
+import SelectAnalysis from "../cards/selectAnalysis";
+import SelectTimeScale from "../graph/selectTimeScale";
+import SelectTimeScaleVertical from "../graph/selectTimeScaleVertical";
+import EquityAnalysisGraph from "../graph/equityAnalysisGraph";
 
 const SecondaryLayout = () => {
     return(
@@ -15,45 +19,65 @@ const SecondaryLayout = () => {
         >
 
 
-            {/* Row */}
+            {/* Card 1 */}
             <GridItem
-            colSpan={6}
-            rowSpan={3}
-            bg="card">
+                borderRadius="lg"
+                colSpan={6}
+                rowSpan={3}>
 
-                <Box bg="card" w="100%" h="100%">
-                    <SelectTicker />
+                <Box bg="card" w="100%" h="100%" borderRadius="lg" className="card">
+                    <SelectEquity />
                 </Box>
             </GridItem>
 
+            {/* Card 2 */}
             <GridItem
-            colSpan={3}
-            rowSpan={3}
-            bg="card">
+                colSpan={3}
+                rowSpan={3}>
 
-                <Box bg="card" w="100%" h="100%">
+                <Box bg="card" w="100%" h="100%" borderRadius="lg" className="card">
+
+                </Box>
+
+                {/* Card 3 */}
+            </GridItem>
+            <GridItem
+                colSpan={3}
+                rowSpan={3}>
+
+                <Box bg="card" w="100%" h="100%" borderRadius="lg" className="card">
                     Hi
                 </Box>
-
-            </GridItem>
-            <GridItem
-            colSpan={3}
-            rowSpan={3}
-            bg="card">
-
-                <Box bg="card" w="100%" h="100%">
-                    Hi
-                </Box>
-
             </GridItem>
 
-            {/* Row (for graph) */}
-
+            {/* Row (for main graph) */}
             <GridItem
                 colSpan={9}
-                rowSpan={6}
-                bg="card">
-                <Graph height={400} width={800}/>
+                rowSpan={6}>
+                <Box bg="card" w="100%" h="100%" borderRadius="lg" className="card">
+                    <SelectTimeScale />
+                    <Graph height={400} width={800}/>
+                </Box>
+            </GridItem>
+
+
+            {/* Ticker select */}
+            <GridItem
+                colSpan={3}
+                rowSpan={6}>
+                <Box bg="card" w="100%" h="100%" borderRadius="lg" className="card">
+                    <SelectAnalysis />
+                </Box>
+            </GridItem>
+
+            {/* Secondary graph */}
+            <GridItem
+                colSpan={9}
+                rowSpan={3}>
+                <Box bg="card" w="100%" h="100%" borderRadius="lg" className="card">
+                    <EquityAnalysisGraph />
+
+                </Box>
             </GridItem>
 
         </Grid>

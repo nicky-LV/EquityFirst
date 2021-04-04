@@ -4,6 +4,7 @@ const Navbar = () => {
     return(
         <GridItem
             bg="background"
+            rowSpan={1}
             colSpan={11}
         />
     )
