@@ -14,6 +14,9 @@ const SelectEquity = (props) => {
     //@ts-ignore
     const tickerOptions = useSelector((state) => state.tickerOptions)
 
+    //@ts-ignore
+    const selectedEquity = useSelector((state) => state.selectedEquity)
+
     return (
         <Center h="100%" w="100%">
             <VStack>
@@ -26,14 +29,14 @@ const SelectEquity = (props) => {
 
                 <Box className="card-padded-content">
 
-                    <Select size="lg" variant="outline" placeholder="Select Equity" onChange={(e) => {
+                    <Select size="lg" variant="outline" value={selectedEquity} placeholder="Select Equity" onChange={(e) => {
                         // sets local state with selected ticker
                         setSelectedTicker(e.target.value)
 
                         // updates redux store with selected ticker
                         dispatch({
                             type: SET_SELECTED_EQUITY,
-                            payload: e.target.value
+                            payload: e.currentTarget.value
                         })
                     }}>
                         {tickerOptions.map(tickerOption => (

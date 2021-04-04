@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from Analysis.Equity.stock_index import top_10_tickers
+from Analysis.Equity.indicator_list import indicator_list
 
 import json
 
@@ -13,6 +14,11 @@ db = Redis()
 @api_view(["GET"])
 def get_tickers(request):
     return Response(data=top_10_tickers, status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+def get_technical_indicators(request):
+    return Response(data=indicator_list, status=status.HTTP_200_OK)
 
 
 @api_view(["GET"])
