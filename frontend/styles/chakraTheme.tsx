@@ -1,7 +1,7 @@
 import { extendTheme } from "@chakra-ui/react"
 const chakraTheme = extendTheme(
     {colors: {
-            sidebar: "#001529",
+            sidebar: "#202A35",
             navbar: "#001529",
             background: "#F0F2F5",
             card: "#FFFFFF",

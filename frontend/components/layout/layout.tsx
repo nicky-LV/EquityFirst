@@ -8,6 +8,7 @@ import Sidebar from "./sidebar";
 import Navbar from "./navbar";
 import SecondaryLayout from "./secondaryLayout";
 
+
 const ContentLayout = (props) => {
     const [graphHeight, setGraphHeight] = useState<Number>(0);
     const [graphWidth, setGraphWidth] = useState<Number>(0);
@@ -22,11 +23,12 @@ const ContentLayout = (props) => {
             templateRows="repeat(12, 1fr)"
             templateColumns="repeat(12, 1fr)"
         >
-            {/* GridItem 12 cols, 1 row */}
-            <Navbar />
 
             {/* GridItem 1 col, 12 rows */}
             <Sidebar />
+
+            {/* GridItem 12 cols, 1 row */}
+            <Navbar />
 
             <GridItem colSpan={11} rowSpan={11}>
                 <SecondaryLayout />

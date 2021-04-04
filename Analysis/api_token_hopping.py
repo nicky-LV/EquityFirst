@@ -7,9 +7,9 @@ from django.conf import settings
 from time import sleep
 import threading
 from functools import partial
+import os
 
 
-# todo: initialize on server start
 class AVTokenTable(Redis):
     def __init__(self):
         self.tokens = settings.ALPHAVANTAGE_TOKENS
@@ -47,3 +47,4 @@ class AVTokenTable(Redis):
 
             else:
                 pass
+

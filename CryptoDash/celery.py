@@ -1,5 +1,6 @@
 import os
 from celery import Celery
+from Analysis.Equity.equity_tasks import populate_historic_data
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "CryptoDash.settings"
 # RabbitMQ message broker

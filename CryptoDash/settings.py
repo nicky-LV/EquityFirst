@@ -21,34 +21,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'i43e-pb0h(osd-!d+we)jx&gq%s4tt6=6(tdrnx+_mmwxb4lyz'
-IEXCLOUD_TOKEN = "pk_9f620f2620ee41fa9b8eaef1a0e1b1e0"
-ALPHAVANTAGE_TOKENS = [
-    "PL04465ED8W1JOAB",
-    "26JLAOMSPGFH39TW",
-    "CUF3EAMEH08BOVR4",
-    "JH8HQ588AP0MMLGY",
-    "XC25JK698I38JZ1Q"
-                       ]
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-# CORS settings
-# todo: do not allow in prod
-CORS_ALLOW_ALL_ORIGINS = True
-
-# CHANNELS settings
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [("localhost", 6379)],
-        },
-    },
-}
-
-ALLOWED_HOSTS = []
-ASGI_APPLICATION = 'CryptoDash.asgi.application'
 APPEND_SLASH = True
 # Application definition(s)
 
@@ -136,7 +112,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/New_York'
 
 USE_I18N = True
 
@@ -149,3 +125,43 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# CORS settings
+
+# todo: do not allow in prod
+
+CORS_ALLOW_ALL_ORIGINS = True
+
+ALLOWED_HOSTS = []
+
+
+# CHANNELS settings
+
+ASGI_APPLICATION = 'CryptoDash.asgi.application'
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("localhost", 6379)],
+        },
+    },
+}
+
+
+# API Settings
+
+IEXCLOUD_TOKEN = "pk_9f620f2620ee41fa9b8eaef1a0e1b1e0"
+
+ALPHAVANTAGE_TOKENS = [
+    "PL04465ED8W1JOAB",
+    "26JLAOMSPGFH39TW",
+    "CUF3EAMEH08BOVR4",
+    "JH8HQ588AP0MMLGY",
+    "XC25JK698I38JZ1Q"
+]
+
+
+# Historical data collection
+
+COLLECT_HISTORICAL_DATA = False

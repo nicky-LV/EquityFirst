@@ -1,5 +1,6 @@
 import {Grid, GridItem, Box} from "@chakra-ui/layout";
 import Graph from "../graph/graph";
+import SelectTicker from "../cards/selectTicker";
 
 const SecondaryLayout = () => {
     return(
@@ -12,6 +13,8 @@ const SecondaryLayout = () => {
             bg="background"
             gap={6}
         >
+
+
             {/* Row */}
             <GridItem
             colSpan={6}
@@ -19,7 +22,7 @@ const SecondaryLayout = () => {
             bg="card">
 
                 <Box bg="card" w="100%" h="100%">
-                    Choose ticker
+                    <SelectTicker />
                 </Box>
             </GridItem>
 
