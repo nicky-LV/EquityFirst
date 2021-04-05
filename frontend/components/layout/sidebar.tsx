@@ -1,5 +1,3 @@
-import BTC5 from "../realtimePrice";
-import Options from "../options/options";
 import {GridItem} from "@chakra-ui/react";
 
 const Sidebar = (props) => {
@@ -9,9 +7,6 @@ const Sidebar = (props) => {
             colSpan={1}
             style={{display: "flex", flexDirection: "column"}}
         >
-
-            <BTC5 />
-            <Options />
 
         </GridItem>
     )

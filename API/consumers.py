@@ -1,71 +1,28 @@
-from channels.consumer import AsyncConsumer
+from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from channels.layers import get_channel_layer
-from channels.exceptions import StopConsumer
-
-from CryptoDash.tasks import db
 import json
 
+from Analysis.Equity.indicator_list import indicator_list
 
-class CryptoConsumer(AsyncConsumer):
+# todo: work out how to change a user's group based on indicator / tim
+class RealTimeData(AsyncJsonWebsocketConsumer):
+    async def websocket_connect(self, message):
+        await self.channel_layer.group_add("realtime-data", self.channel_name)
+        await self.connect()
 
-    # accept websocket connection
-    async def websocket_connect(self, event):
-        # add channel to group
-        await self.channel_layer.group_add('datastream', self.channel_name)
+    async def send_json(self, content, close=False):
+        await super().send(text_data=json.dumps(content), close=close)
 
-        # accept connection
-        await self.send({
-            "type": "websocket.accept"
-        })
+    async def receive_json(self, content, **kwargs):
+        if content['technicalIndicator'] in indicator_list and content['selectedEquity']:
+            selected_equity = content['selectedEquity'].upper()
+            technical_indicator = content['technicalIndicator'].upper()
+            await self.channel_layer.group_add(f'{selected_equity}-{technical_indicator}', self.channel_name)
 
-    # payload received from frontend
-    async def websocket_receive(self, payload):
-        if payload['text'] == 'initialize':
-            # add the client's channel to our group
-            await self.send({
-                "type": "websocket.send",
-                "text": json.dumps(db.get(all_keys=True))
-            })
-
-    async def websocket_update(self, payload):
-        await self.send({
-            "type": "websocket.send",
-            "text": payload['text']
-        })
-
-    # close websocket (server-side)
-    async def websocket_disconnect(self, payload):
-        await self.channel_layer.group_discard('datastream', self.channel_name)
-        await self.send({
-            "type": "websocket.disconnect"
-        })
-        raise StopConsumer
-
-
-class BTC5Sec(AsyncConsumer):
-
-    async def websocket_update(self, event):
-        print("update client")
-        await self.send({
-            "type": "websocket.send",
-            "text": json.dumps(event["text"])
-        })
-
-    async def websocket_connect(self, event):
-        await self.channel_layer.group_add('get_price_every_5_secs', self.channel_name)
-        await self.send({
-            "type": "websocket.accept"
-        })
-
-    async def websocket_receive(self, event):
-        await self.send({
-            "type": "websocket.send",
-            "text": "Received client message"
-        })
-
-    async def websocket_disconnect(self, event):
-        await self.send({
-            "type": "websocket.disconnect"
-        })
-
-        raise StopConsumer
+    async def websocket_update(self, content):
+        """
+        Sends JSON-encoded content to the client.
+        :param content: (python native datatype) content to send to the client.
+        :return: None
+        """
+        await self.send_json(content=content)

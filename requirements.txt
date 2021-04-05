@@ -6,3 +6,4 @@ redis~=3.5.3
 requests~=2.25.1
 asgiref~=3.3.1
 pytickersymbols~=1.4.3
+pandas~=1.2.3

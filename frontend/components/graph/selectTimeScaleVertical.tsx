@@ -1,53 +1,40 @@
 import {Button} from "@chakra-ui/button";
 import {VStack, Center} from "@chakra-ui/layout";
 import {SET_TIMESCALE} from "../../redux/constants";
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
+import {timeScaleValues} from "../../redux/constants";
+
+const timeScaleClasses = {
+    '1D': 'top-button',
+    '1W': 'middle-button',
+    '1M': 'middle-button',
+    '1Y': 'bottom-button'
+}
 
 const SelectTimeScaleVertical = (props) => {
     const dispatch = useDispatch()
+
+    //@ts-ignore
+    const reduxTimeScale = useSelector((state) => state.timeScale)
+
     function handleDispatch(e){
         dispatch({type: SET_TIMESCALE, payload: e.currentTarget.value})
     }
+
     return (
         <Center h="100%">
             <VStack spacing={0}>
-                <Button variant="outline"
-                        value="1D"
+                {timeScaleValues.map(timeScale => (
+                    <Button variant="outline"
+                        value={timeScale}
+                            key={timeScale}
                         onClick={e => handleDispatch(e)}
-                        borderBottomLeftRadius={0}
-                        borderBottomRightRadius={0}
                         w="100%"
-                        className="timescale-button">
-                    1D
-                </Button>
-
-                <Button variant="outline"
-                        value="1W"
-                        onClick={e => handleDispatch(e)}
-                        borderRadius={0}
-                        w="100%"
-                        className="timescale-button">
-                    1W
-                </Button>
-
-                <Button variant="outline"
-                        value="1M"
-                        onClick={e => handleDispatch(e)}
-                        borderRadius={0}
-                        w="100%"
-                        className="timescale-button">
-                    1M
-                </Button>
-
-                <Button variant="outline"
-                        value="1Y"
-                        onClick={e => handleDispatch(e)}
-                        borderTopLeftRadius={0}
-                        borderTopRightRadius={0}
-                        w="100%"
-                        className="timescale-button">
-                    1Y
-                </Button>
+                            bg={timeScale === reduxTimeScale ? "gray.100" : null}
+                        className={timeScaleClasses[timeScale]}>
+                        {timeScale}
+                    </Button>
+                    ))}
             </VStack>
         </Center>
     )

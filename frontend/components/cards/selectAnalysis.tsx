@@ -69,7 +69,7 @@ const SelectAnalysis = (props) => {
                     <Select marginTop="10px" w="100%" onChange={e => handleSelectTechnicalIndicator(e)}>
                         {technicalIndicatorOptions.map(technicalIndicator => (
                             <option
-                                value={technicalIndicator}>{technicalIndicator}</option>
+                                value={technicalIndicator} key={technicalIndicator}>{technicalIndicator}</option>
                         ))}
                     </Select>
                 </Center>

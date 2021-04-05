@@ -91,7 +91,8 @@ class EquityData(Base):
             for data in intraday_data
         ]
 
-        self.db.set(key=f"{self.ticker}-intraday", value=json.dumps(intraday_data_parsed))
+        self.db.set(key=f"{self.ticker}-intraday", value=json.dumps(intraday_data_parsed), permanent=True)
+
         return intraday_data_parsed
 
     def previous_day_data(self):
@@ -115,6 +116,8 @@ class EquityData(Base):
 
             # update the historical data with previous day's data
             self.db.set(key=self.ticker, value=historical_data, permanent=True)
+
+            return historical_data
 
         else:
             raise ArithmeticError("Cannot assign data for previous trading day because today - yesterday != 1 day.")

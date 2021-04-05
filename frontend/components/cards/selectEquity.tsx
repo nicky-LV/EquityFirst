@@ -40,7 +40,7 @@ const SelectEquity = (props) => {
                         })
                     }}>
                         {tickerOptions.map(tickerOption => (
-                            <option value={tickerOption} >{tickerOption}</option>
+                            <option value={tickerOption} key={tickerOption}>{tickerOption}</option>
                         ))}
                     </Select>
 
