@@ -10,7 +10,6 @@ import {websocketTypeEnum, websocketJSON, intradayData} from "../../ts/types";
 import {useToasts} from "react-toast-notifications";
 
 const Graph = (props: any) => {
-    const [websocketInstance, setWebsocketInstance] = useState<WebSocket | null>(null);
     const [intradayData, setIntraDayData] = useState<intradayData[] | []>([]);
 
     const reduxTimeScale: string = useSelector((state : RootState) => state.timeScale)
@@ -25,14 +24,13 @@ const Graph = (props: any) => {
         // if timeScale is 1D, minute-updated intraday data is shown.
         if (reduxTimeScale === "1D"){ // todo: is this line needed?
             const ws: WebSocket = new WebSocket("ws://127.0.0.1:8000/realtime-data/")
-            // setup redux intraday websocket
-            store.dispatch({
-                type: SET_INTRADAY_WEBSOCKET,
-                payload: ws
-            })
+            // dispatch intraday websocket to redux store
 
             ws.onopen = function(){
-                setWebsocketInstance(ws)
+                store.dispatch({
+                    type: SET_INTRADAY_WEBSOCKET,
+                    payload: ws
+                })
 
                 ws.send(
                     JSON.stringify({
@@ -43,9 +41,10 @@ const Graph = (props: any) => {
             }
 
             ws.onmessage = function(data){
+                // todo: [BUG] re-selecting the same equity puts '' into redux's selectedEquity attr
                 const response = JSON.parse(data.data)
-                if (response.ERROR) {
-                    toast.addToast(response.ERROR.toString(), {
+                if (response.STATUS === "ERROR") {
+                    toast.addToast(response.MESSAGE.toString(), {
                             appearance: "warning",
                             autoDismiss: true
                         }
@@ -53,7 +52,6 @@ const Graph = (props: any) => {
                 }
             }
         }
-        console.log("remounted")
     }, [])
 
     return(
@@ -66,8 +64,6 @@ const Graph = (props: any) => {
 function changeGroup(){
     const intradayWebsocket = store.getState().intradayWebsocket
     const selectedEquity: string = store.getState().selectedEquity
-
-    console.log(selectedEquity)
 
     if (intradayWebsocket){
         intradayWebsocket.send(

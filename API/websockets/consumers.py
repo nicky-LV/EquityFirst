@@ -52,12 +52,15 @@ class IntraDayData(AsyncJsonWebsocketConsumer):
                 if not status:
                     # returns error
                     await self.send_json(content=
-                                         json.dumps({
+                                         {
                                              "STATUS": "ERROR",
                                              "MESSAGE": "Failed to add group to channel"
-                                         }))
+                                         })
         else:
-            await self.send(text_data="No type or selected equity is provided in payload.")
+            await self.send_json({
+                "STATUS": "ERROR",
+                "MESSAGE": "No type or selected equity is provided in payload."
+            })
 
     async def websocket_update(self, content):
         """
