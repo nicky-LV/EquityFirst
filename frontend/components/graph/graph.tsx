@@ -1,18 +1,9 @@
 import {useEffect, useState} from "react";
-import axios from 'axios';
 import {useSelector} from "react-redux";
 import {RootState} from "../../redux/store";
-import {string} from "prop-types";
 
-enum websocketEnum {
-    GROUP = "GROUP",
-    UPDATE = "UPDATE"
-}
+import {websocketEnum, intradayData} from "../../ts/types";
 
-interface intradayData{
-    time: String
-    price: Number
-}
 
 const Graph = (props: any) => {
     const [websocketInstance, setWebsocketInstance] = useState<WebSocket | null>(null);
@@ -20,7 +11,6 @@ const Graph = (props: any) => {
 
     const reduxTimeScale: string = useSelector((state : RootState) => state.timeScale)
     const reduxSelectedEquity: string = useSelector((state : RootState) => state.selectedEquity)
-    const reduxTechnicalIndicator: string = useSelector((state : RootState) => state.technicalIndicator)
 
     useEffect(() => {
         // if timeScale is 1D, minute-updated intraday data is shown.
@@ -33,8 +23,7 @@ const Graph = (props: any) => {
                 ws.send(
                     JSON.stringify({
                         type: websocketEnum.GROUP,
-                        selectedEquity: reduxSelectedEquity,
-                        technicalIndicator: reduxTechnicalIndicator
+                        selectedEquity: reduxSelectedEquity
                     })
                 )
             }

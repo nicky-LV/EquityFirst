@@ -12,7 +12,7 @@ from django.core.asgi import get_asgi_application
 from django.urls import path
 
 from channels.routing import ProtocolTypeRouter, URLRouter
-from API.websockets.consumers import RealTimeData
+from API.websockets.consumers import IntraDayData
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'CryptoDash.settings')
 
@@ -21,6 +21,6 @@ application = ProtocolTypeRouter({
 
     # websocket protocol
     "websocket": URLRouter([
-        path('realtime-data/', RealTimeData.as_asgi()),
+        path('realtime-data/', IntraDayData.as_asgi()),
     ])
 })

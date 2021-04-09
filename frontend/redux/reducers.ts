@@ -5,14 +5,16 @@ interface intialStoreStateType {
     selectedEquity: string,
     technicalIndicator: string | null,
     timeScale: string,
-    updateScale: string
+    updateScale: string,
+    intradayWebsocket: WebSocket | null
 }
 const initialStoreState: intialStoreStateType = {
     tickerOptions: [],
     selectedEquity: "MSFT",
     technicalIndicator: "SMA",
     timeScale: "1D",
-    updateScale: "Every minute"
+    updateScale: "Every minute",
+    intradayWebsocket: null
 }
 
 export function rootReducer(storeState=initialStoreState, dispatch){
