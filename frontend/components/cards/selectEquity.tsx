@@ -29,7 +29,7 @@ const SelectEquity = (props) => {
 
                 <Box className="card-padded-content">
 
-                    <Select size="lg" variant="outline" value={selectedEquity} placeholder={selectedEquity} onChange={(e) => {
+                    <Select size="lg" variant="outline" value={selectedEquity} placeholder="Select Equity" onChange={(e) => {
                         // sets local state with selected ticker
                         setSelectedTicker(e.target.value)
 

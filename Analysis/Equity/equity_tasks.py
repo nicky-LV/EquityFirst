@@ -14,7 +14,7 @@ def populate_historic_data():
         for ticker in top_10_tickers:
             equity = EquityData(ticker=ticker)
             # saves an equity's historic data within redis
-            equity.historic_data()
+            equity.set_historic_data()
 
     else:
         print(f"settings.COLLECT_HISTORICAL_DATA is {settings.COLLECT_HISTORICAL_DATA}")
@@ -28,7 +28,7 @@ def update_historic_data_with_previous_day_data():
     for ticker in top_10_tickers:
         equity = EquityData(ticker=ticker)
         # updates the equity's historical data with the previous day's data
-        equity.previous_day_data()
+        equity.set_previous_day_data()
 
 
 @shared_task
@@ -36,4 +36,4 @@ def update_intraday_data():
     for ticker in top_10_tickers:
         equity = EquityData(ticker=ticker)
         # saves an equity's intraday data within redis
-        equity.intraday_data()
+        equity.set_intraday_data()

@@ -23,7 +23,13 @@ export function rootReducer(storeState=initialStoreState, dispatch){
             return Object.assign({}, storeState, {tickerOptions: dispatch.payload})
 
         case SET_SELECTED_EQUITY:
-            return Object.assign({}, storeState, {selectedEquity: dispatch.payload})
+            if (dispatch.payload === ""){
+                return Object.assign({}, storeState)
+            }
+
+            else{
+                return Object.assign({}, storeState, {selectedEquity: dispatch.payload})
+            }
 
         case SET_TECHNICAL_INDICATOR:
             return Object.assign({}, storeState, {technicalIndicator: dispatch.payload})

@@ -24,11 +24,6 @@ CELERY_BEAT_SCHEDULE = {
 
     "update_intraday_data": {
         "task": "Analysis.Equity.equity_tasks.update_intraday_data",
-        "schedule": crontab(minute='*/15')
-    },
-
-    "perform_technical_analysis": {
-        "task": "Analysis.Equity.equity_tasks.perform_technical_analysis",
         "schedule": crontab(minute='*/1')
     }
 }

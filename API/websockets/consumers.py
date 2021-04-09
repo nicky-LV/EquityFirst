@@ -7,6 +7,7 @@ import functools
 from API.models import Channels, Groups
 
 from Analysis.Equity.stock_index import top_10_tickers
+from Analysis.Equity.classes import EquityData
 
 # todo: work out how to change a user's group based on indicator / tim
 
@@ -15,6 +16,7 @@ class IntraDayData(AsyncJsonWebsocketConsumer):
     def __init__(self):
         self.channel = None
         self.group = None
+        self.group_name = None
         super().__init__()
 
     async def websocket_connect(self, message):
@@ -39,17 +41,26 @@ class IntraDayData(AsyncJsonWebsocketConsumer):
                 Clients must send a "type" key within the JSON payload, with "GROUP" as the value to re-group a channel.
                 """
 
+                selected_equity = content['selectedEquity']
+
                 # get / create the group based off the specified equity
-                self.group, created = await database_sync_to_async(functools.partial(self.get_group, content['selectedEquity']))()
+                self.group, created = await database_sync_to_async(functools.partial(self.get_group, selected_equity))()
 
                 # create channel db entry for the client
                 self.channel, created = await database_sync_to_async(self.get_channel)()
 
                 # assign channel to group
-                status = database_sync_to_async(functools.partial(self.assign_channel_to_group,
+                success = database_sync_to_async(functools.partial(self.assign_channel_to_group,
                                                                   channel=self.channel,
                                                                   group=self.group))()
-                if not status:
+
+                if success:
+                    await self.channel_layer.group_add(self.group_name, self.channel_name)
+                    data = EquityData(selected_equity)
+                    initial_intraday_data = data.get_intraday_data()
+                    await self.send(text_data=initial_intraday_data)
+
+                if not success:
                     # returns error
                     await self.send_json(content=
                                          {
@@ -57,9 +68,10 @@ class IntraDayData(AsyncJsonWebsocketConsumer):
                                              "MESSAGE": "Failed to add group to channel"
                                          })
         else:
+            # type or selectedEquity was not provided in the JSON payload.
             await self.send_json({
                 "STATUS": "ERROR",
-                "MESSAGE": "No type or selected equity is provided in payload."
+                "MESSAGE": "Please select an equity."
             })
 
     async def websocket_update(self, content):
@@ -74,21 +86,22 @@ class IntraDayData(AsyncJsonWebsocketConsumer):
         await database_sync_to_async(self.remove_channel)()
         await self.close()
 
+    # ---------------------------------------------
     # DB queries
+    # ---------------------------------------------
 
-    @staticmethod
-    def get_group(selectedEquity):
+    def get_group(self, selectedEquity):
         """
         Returns the group associated with the selected equity
         :param selectedEquity: the equity that the user has selected
         :return: a get_or_create tuple (object, created)
         """
+        self.group_name = f"{selectedEquity}-intraday"
         return Groups.objects.get_or_create(name=f"{selectedEquity}-intraday")
 
     def get_channel(self):
         """
         Creates a channel (DB entry) for the client.
-        :param group: Group to connect to
         :return: a get_or_create tuple (object, created)
         """
         return Channels.objects.get_or_create(name=self.channel_name)
@@ -113,6 +126,5 @@ class IntraDayData(AsyncJsonWebsocketConsumer):
     def remove_channel(self):
         """
         Deletes channel once client has disconnected
-        :return:
         """
         self.channel.delete()

@@ -44,15 +44,11 @@ class Redis:
         # data is stored as bytes (8 bits(binary)) in memory). A bytestring is a character + encoding
         # we can decode these bytestrings into english (utf-8), by decoding with utf-8.
 
-        if all_keys:
-            return sorted([{"time": key.decode('utf-8'), "price": float(self.get(key=key))} for key in self.db.scan_iter()], key=lambda x: x['time'])
+        if self.db.get(key) is None:
+            raise KeyError("Key does not exist within the database.")
 
         else:
-            if self.db.get(key) is None:
-                raise KeyError("Key does not exist within the database.")
-
-            else:
-                return self.db.get(key).decode('utf-8')
+            return self.db.get(key).decode('utf-8')
 
     # default expiry date for each key is until END OF DAY
     def set(self, key, value, permanent=False):

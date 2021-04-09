@@ -10,7 +10,7 @@ import {websocketTypeEnum, websocketJSON, intradayData} from "../../ts/types";
 import {useToasts} from "react-toast-notifications";
 
 const Graph = (props: any) => {
-    const [intradayData, setIntraDayData] = useState<intradayData[] | []>([]);
+    const [intradayData, setIntradayData] = useState<intradayData[] | []>([]);
 
     const reduxTimeScale: string = useSelector((state : RootState) => state.timeScale)
     const reduxSelectedEquity: string = useSelector((state : RootState) => state.selectedEquity)
@@ -27,11 +27,13 @@ const Graph = (props: any) => {
             // dispatch intraday websocket to redux store
 
             ws.onopen = function(){
+                // Set Websocket instance in redux store for across-app calling.
                 store.dispatch({
                     type: SET_INTRADAY_WEBSOCKET,
                     payload: ws
                 })
 
+                // Initialize a group for the client
                 ws.send(
                     JSON.stringify({
                         type: websocketTypeEnum.GROUP,
@@ -40,15 +42,18 @@ const Graph = (props: any) => {
                 )
             }
 
-            ws.onmessage = function(data){
-                // todo: [BUG] re-selecting the same equity puts '' into redux's selectedEquity attr
-                const response = JSON.parse(data.data)
-                if (response.STATUS === "ERROR") {
-                    toast.addToast(response.MESSAGE.toString(), {
+            ws.onmessage = function(response){
+                const data = JSON.parse(response.data)
+                if (data.STATUS === "ERROR") {
+                    toast.addToast(data.MESSAGE.toString(), {
                             appearance: "warning",
                             autoDismiss: true
                         }
                     )
+                }
+
+                else{
+                    setIntradayData(data)
                 }
             }
         }
