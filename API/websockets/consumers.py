@@ -70,6 +70,10 @@ class IntraDayData(AsyncJsonWebsocketConsumer):
         """
         await self.send_json(content=content)
 
+    async def websocket_disconnect(self, message):
+        await database_sync_to_async(self.remove_channel)()
+        await self.close()
+
     # DB queries
 
     @staticmethod
@@ -105,3 +109,10 @@ class IntraDayData(AsyncJsonWebsocketConsumer):
 
         except Exception:
             return False
+
+    def remove_channel(self):
+        """
+        Deletes channel once client has disconnected
+        :return:
+        """
+        self.channel.delete()
