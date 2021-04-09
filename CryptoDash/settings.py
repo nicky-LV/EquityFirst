@@ -81,9 +81,20 @@ WSGI_APPLICATION = 'CryptoDash.wsgi.application'
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 DATABASES = {
+
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+
+        'NAME': 'postgres',
+
+        'USER': 'postgres',
+
+        'PASSWORD': 'postgres',
+
+        'HOST': '127.0.0.1',
+
+        'PORT': '5432',
     }
 }
 
@@ -152,24 +163,6 @@ CHANNEL_LAYERS = {
 # API Settings
 
 IEXCLOUD_TOKEN = "pk_9f620f2620ee41fa9b8eaef1a0e1b1e0"
-
-ALPHAVANTAGE_TOKENS = [
-    "PL04465ED8W1JOAB",
-    "26JLAOMSPGFH39TW",
-    "CUF3EAMEH08BOVR4",
-    "JH8HQ588AP0MMLGY",
-    "XC25JK698I38JZ1Q",
-    "YIETLVZEAA8ED6W1",
-    "BLABHA4A4HLULM6F",
-    "XVO8N2L0ITN3JG4D",
-    "O51RDOLEOVPF4OP6",
-    "BDAMWUP4OYBISM0W",
-    "F30RGBC005PRCIOI",
-    "N24NMKVOQUTTCDZS",
-    "OD3JD93KTZAGNPVH",
-    "T1BDYLPHJT5OQPR7"
-]
-
 
 # Historical data collection
 

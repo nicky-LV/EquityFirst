@@ -1,13 +1,12 @@
 import {useEffect, useState} from "react";
-import {LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip} from 'recharts';
 import axios from 'axios';
 import {useSelector} from "react-redux";
 import {RootState} from "../../redux/store";
 import {string} from "prop-types";
 
 enum websocketEnum {
-    INITIALIZE = "initialize",
-    UPDATE = "update"
+    GROUP = "GROUP",
+    UPDATE = "UPDATE"
 }
 
 interface intradayData{
@@ -33,6 +32,7 @@ const Graph = (props: any) => {
 
                 ws.send(
                     JSON.stringify({
+                        type: websocketEnum.GROUP,
                         selectedEquity: reduxSelectedEquity,
                         technicalIndicator: reduxTechnicalIndicator
                     })
@@ -46,7 +46,9 @@ const Graph = (props: any) => {
     }, [])
 
     return(
-        "Graph goes here"
+        <div>
+            "Graph goes here"
+        </div>
     )
 }
 
