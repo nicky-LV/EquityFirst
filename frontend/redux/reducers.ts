@@ -1,4 +1,4 @@
-import {SET_TICKER_OPTIONS, SET_SELECTED_EQUITY, SET_TECHNICAL_INDICATOR, SET_TIMESCALE} from "./constants";
+import {SET_TICKER_OPTIONS, SET_SELECTED_EQUITY, SET_TECHNICAL_INDICATOR, SET_TIMESCALE, SET_INTRADAY_WEBSOCKET} from "./constants";
 
 interface intialStoreStateType {
     tickerOptions: string[] | [],
@@ -60,6 +60,9 @@ export function rootReducer(storeState=initialStoreState, dispatch){
                             updateScale: "Every minute"
                         })
             }
+
+        case SET_INTRADAY_WEBSOCKET:
+            return Object.assign({}, storeState, {intradayWebsocket: dispatch.payload})
 
         default:
             return Object.assign({}, storeState)

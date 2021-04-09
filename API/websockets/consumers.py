@@ -49,7 +49,6 @@ class IntraDayData(AsyncJsonWebsocketConsumer):
                 status = database_sync_to_async(functools.partial(self.assign_channel_to_group,
                                                                   channel=self.channel,
                                                                   group=self.group))()
-
                 if not status:
                     # returns error
                     await self.send_json(content=
@@ -57,10 +56,6 @@ class IntraDayData(AsyncJsonWebsocketConsumer):
                                              "STATUS": "ERROR",
                                              "MESSAGE": "Failed to add group to channel"
                                          }))
-
-                print(self.channel.name)
-                print(self.group.name)
-
         else:
             await self.send(text_data="No type or selected equity is provided in payload.")
 
