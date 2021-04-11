@@ -24,7 +24,7 @@ CELERY_BEAT_SCHEDULE = {
 
     "update_intraday_data": {
         "task": "Analysis.Equity.equity_tasks.update_intraday_data",
-        "schedule": crontab(minute='*/1')
+        "schedule": crontab(minute='*/1', hour="9-17", day_of_week="mon,fri")
     }
 }
 

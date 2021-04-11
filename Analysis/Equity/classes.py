@@ -44,22 +44,22 @@ class Base:
 class EquityData(Base):
     def __init__(self, ticker):
         super().__init__(ticker=ticker)
+
     # ticker is valid (due to tests done within the base class)
 
     # saves and returns historic data.
     def set_historic_data(self, time_range="1y"):
-        historic_data = requests.get(f"https://cloud.iexapis.com/stable/stock/{self.ticker}/chart/{time_range}/?token={self.IEX_token}").json()
+        historic_data = requests.get(
+            f"https://cloud.iexapis.com/stable/stock/{self.ticker}/chart/{time_range}/?token={self.IEX_token}").json()
 
-        # historic data is parsed into dict format with keys [date, open, close, high, low, volume]
+        # historic data is parsed into list format [D, O, H, L, C, V]
         historic_data_parsed = [
-            {
-                'date': data['date'],
-                'open': data['open'],
-                'close': data['close'],
-                'high': data['high'],
-                'low': data['low'],
-                'volume': data['volume']
-            }
+            [data['date'],
+             data['open'],
+             data['high'],
+             data['low'],
+             data['close']
+             ]
 
             for data in historic_data
         ]
@@ -74,21 +74,18 @@ class EquityData(Base):
 
     # saves and returns intraday data.
     def set_intraday_data(self):
-        intraday_data = requests.get(f"https://cloud.iexapis.com/stable/stock/{self.ticker}/intraday-prices/?token={self.IEX_token}").json()
+        intraday_data = requests.get(
+            f"https://cloud.iexapis.com/stable/stock/{self.ticker}/intraday-prices/?token={self.IEX_token}").json()
 
-        # intraday data is parsed into dict format with keys [date, time, average, open, close, high, low, volume]
+        # intraday data is parsed into dict format with keys [date, minute, average, open, close, high, low, volume]
 
         intraday_data_parsed = [
-            {
-                'date': data['date'],
-                'time': data['minute'],
-                'average': data['average'],
-                'open': data['open'],
-                'close': data['close'],
-                'high': data['high'],
-                'low': data['low'],
-                'volume': data['volume']
-            }
+            [data['minute'],
+             data['open'],
+             data['high'],
+             data['low'],
+             data['close']
+             ]
 
             for data in intraday_data
         ]
@@ -104,7 +101,8 @@ class EquityData(Base):
         # get date from last day saved in redis DB.
         previous_day_saved = json.loads(self.db.get(key=self.ticker))[-1]['date']
         if compare_dates(previous_day_saved):
-            previous_day_data = requests.get(f"https://cloud.iexapis.com/stable/stock/{self.ticker}/previous/?token={self.IEX_token}").json()
+            previous_day_data = requests.get(
+                f"https://cloud.iexapis.com/stable/stock/{self.ticker}/previous/?token={self.IEX_token}").json()
 
             previous_day_data_parsed = {
                 'date': previous_day_data['date'],

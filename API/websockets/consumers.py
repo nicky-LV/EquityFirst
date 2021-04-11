@@ -51,22 +51,54 @@ class IntraDayData(AsyncJsonWebsocketConsumer):
 
                 # assign channel to group
                 success = database_sync_to_async(functools.partial(self.assign_channel_to_group,
-                                                                  channel=self.channel,
-                                                                  group=self.group))()
+                                                                   channel=self.channel,
+                                                                   group=self.group))()
 
                 if success:
+                    # Add channel to group
                     await self.channel_layer.group_add(self.group_name, self.channel_name)
-                    data = EquityData(selected_equity)
-                    initial_intraday_data = data.get_intraday_data()
-                    await self.send(text_data=initial_intraday_data)
+                    # Instantiate EquityData instance (which we can retrieve data from)
+
+                    try:
+                        data = EquityData(selected_equity)
+
+                        # Retrieve intraday data
+                        initial_intraday_data = data.get_intraday_data()
+
+                        # Retrieve historical data
+                        historical_data = data.get_historic_data()
+
+                        await self.send_json(content={
+                            "STATUS": "INTRADAY",
+                            "DATA": initial_intraday_data
+                        })
+
+                        await self.send_json(content={
+                            "STATUS": "HISTORICAL",
+                            "DATA": historical_data
+                        })
+
+                    except AssertionError:
+                        await self.send_json(content=
+                        {
+                            "STATUS": "ERROR",
+                            "DATA": "selectedEquity is not a valid equity ticker."
+                        })
+
+                    except KeyError:
+                        await self.send_json(content=
+                        {
+                            "STATUS": "ERROR",
+                            "DATA": "Equity not found in database."
+                        })
 
                 if not success:
                     # returns error
                     await self.send_json(content=
-                                         {
-                                             "STATUS": "ERROR",
-                                             "MESSAGE": "Failed to add group to channel"
-                                         })
+                    {
+                        "STATUS": "ERROR",
+                        "DATA": "Failed to add group to channel"
+                    })
         else:
             # type or selectedEquity was not provided in the JSON payload.
             await self.send_json({
@@ -80,7 +112,7 @@ class IntraDayData(AsyncJsonWebsocketConsumer):
         :param content: (python native datatype) content to send to the client.
         :return: None
         """
-        await self.send_json(content=content)
+        await self.send(text_data=content['text'])
 
     async def websocket_disconnect(self, message):
         await database_sync_to_async(self.remove_channel)()

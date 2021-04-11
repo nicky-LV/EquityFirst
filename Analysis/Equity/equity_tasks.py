@@ -5,8 +5,9 @@ from celery import shared_task
 from django.conf import settings
 from Analysis.Equity.indicator_list import indicator_list
 
+import datetime
 from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
+from asgiref.sync import async_to_sync, sync_to_async
 
 
 def populate_historic_data():
@@ -33,7 +34,18 @@ def update_historic_data_with_previous_day_data():
 
 @shared_task
 def update_intraday_data():
+    # Check if market is closed or open. 9:30 AM -
     for ticker in top_10_tickers:
         equity = EquityData(ticker=ticker)
         # saves an equity's intraday data within redis
         equity.set_intraday_data()
+
+        # update intraday data for connected clients
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f"{ticker}-intraday",
+            {
+                "type": "websocket.update",
+                "text": equity.get_intraday_data()
+            }
+        )

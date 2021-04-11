@@ -1,4 +1,4 @@
-import {SET_TICKER_OPTIONS, SET_SELECTED_EQUITY, SET_TECHNICAL_INDICATOR, SET_TIMESCALE, SET_INTRADAY_WEBSOCKET} from "./constants";
+import {SET_TICKER_OPTIONS, SET_SELECTED_EQUITY, SET_TECHNICAL_INDICATOR, SET_TIMESCALE, SET_INTRADAY_WEBSOCKET, SET_HISTORICAL_DATA, SET_INTRADAY_DATA} from "./constants";
 
 interface intialStoreStateType {
     tickerOptions: string[] | [],
@@ -6,7 +6,9 @@ interface intialStoreStateType {
     technicalIndicator: string | null,
     timeScale: string,
     updateScale: string,
-    intradayWebsocket: WebSocket | null
+    intradayWebsocket: WebSocket | null,
+    historicalData: any,
+    intradayData: any
 }
 const initialStoreState: intialStoreStateType = {
     tickerOptions: [],
@@ -14,7 +16,9 @@ const initialStoreState: intialStoreStateType = {
     technicalIndicator: "SMA",
     timeScale: "1D",
     updateScale: "Every minute",
-    intradayWebsocket: null
+    intradayWebsocket: null,
+    historicalData: null,
+    intradayData: null
 }
 
 export function rootReducer(storeState=initialStoreState, dispatch){
@@ -69,6 +73,12 @@ export function rootReducer(storeState=initialStoreState, dispatch){
 
         case SET_INTRADAY_WEBSOCKET:
             return Object.assign({}, storeState, {intradayWebsocket: dispatch.payload})
+
+        case SET_HISTORICAL_DATA:
+            return Object.assign({}, storeState, {historicalData: dispatch.payload})
+
+        case SET_INTRADAY_DATA:
+            return Object.assign({}, storeState, {intradayData: dispatch.payload})
 
         default:
             return Object.assign({}, storeState)

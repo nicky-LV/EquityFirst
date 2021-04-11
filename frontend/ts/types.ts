@@ -12,6 +12,12 @@ export interface websocketJSON {
 
 // Intra-day data format
 export interface intradayData{
-    time: String
-    price: Number
+    average: number
+    close: number
+    date: string
+    high: number
+    low: number
+    open: number
+    time: string
+    volume: number
 }

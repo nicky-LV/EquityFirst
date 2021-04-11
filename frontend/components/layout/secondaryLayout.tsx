@@ -1,12 +1,14 @@
 import {Grid, GridItem, Box} from "@chakra-ui/layout";
-import Graph from "../graph/graph";
 import SelectEquity from "../cards/selectEquity";
 import SelectAnalysis from "../cards/selectAnalysis";
 import SelectTimeScale from "../graph/selectTimeScale";
 import SelectTimeScaleVertical from "../graph/selectTimeScaleVertical";
 import EquityAnalysisGraph from "../graph/equityAnalysisGraph";
+import GraphWrapper from "../graph/graphWrapper";
+import CandlestickChart from "../graph/candlestick";
 
 const SecondaryLayout = () => {
+
     return(
         <Grid
             className="p-4"
@@ -56,7 +58,7 @@ const SecondaryLayout = () => {
                 rowSpan={6}>
                 <Box bg="card" w="100%" h="100%" borderRadius="lg" className="card">
                     <SelectTimeScale />
-                    <Graph height={400} width={800}/>
+                    <GraphWrapper />
                 </Box>
             </GridItem>
 

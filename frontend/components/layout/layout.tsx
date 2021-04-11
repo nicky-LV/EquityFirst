@@ -1,7 +1,7 @@
 import {Grid, GridItem} from "@chakra-ui/react";
 import BTC5 from "../realtimePrice";
 import Options from "../options/options";
-import Graph from "../graph/graph";
+import Graph from "../graph/graphWrapper";
 import {useEffect, useState, useRef} from "react";
 import {Box, Divider} from "@chakra-ui/layout";
 import Sidebar from "./sidebar";
