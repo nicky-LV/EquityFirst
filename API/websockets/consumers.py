@@ -6,10 +6,8 @@ import functools
 
 from API.models import Channels, Groups
 
-from Analysis.Equity.stock_index import top_10_tickers
-from Analysis.Equity.classes import EquityData
-
-# todo: work out how to change a user's group based on indicator / tim
+from Equity.equity_symbols import equity_symbols
+from Equity.classes import EquityData
 
 
 class IntraDayData(AsyncJsonWebsocketConsumer):
@@ -23,7 +21,9 @@ class IntraDayData(AsyncJsonWebsocketConsumer):
         """
         Accepts the websocket request. Client then sends a request to initialize dataflow.
         """
-        channel = Channels(name=self.channel_name)
+        # create channel db entry for the client
+        self.channel, created = await database_sync_to_async(self.get_channel)()
+
         await self.connect()
 
     async def send_json(self, content, close=False):
@@ -31,7 +31,7 @@ class IntraDayData(AsyncJsonWebsocketConsumer):
 
     async def receive_json(self, content, **kwargs):
         # Identify the type of the user's request
-        if content['type'] and content['selectedEquity'] in top_10_tickers:
+        if content['type'] and content['selectedEquity'] in equity_symbols:
 
             if content['type'] == "GROUP":
                 """
@@ -45,9 +45,6 @@ class IntraDayData(AsyncJsonWebsocketConsumer):
 
                 # get / create the group based off the specified equity
                 self.group, created = await database_sync_to_async(functools.partial(self.get_group, selected_equity))()
-
-                # create channel db entry for the client
-                self.channel, created = await database_sync_to_async(self.get_channel)()
 
                 # assign channel to group
                 success = database_sync_to_async(functools.partial(self.assign_channel_to_group,
@@ -115,6 +112,7 @@ class IntraDayData(AsyncJsonWebsocketConsumer):
         await self.send(text_data=content['text'])
 
     async def websocket_disconnect(self, message):
+        # Todo: remove channel
         await database_sync_to_async(self.remove_channel)()
         await self.close()
 
