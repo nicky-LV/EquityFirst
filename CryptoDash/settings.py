@@ -29,7 +29,7 @@ APPEND_SLASH = True
 # Application definition(s)
 
 INSTALLED_APPS = [
-    'Analysis.apps.AnalysisConfig',
+    'Equity.apps.EquityConfig',
     'API.apps.ApiConfig',
     'Redis.apps.RedisConfig',
     'django.contrib.admin',

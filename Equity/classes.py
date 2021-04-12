@@ -1,4 +1,4 @@
-from .stock_index import top_10_tickers
+from Equity.equity_symbols import equity_symbols
 from django.conf import settings
 from functools import lru_cache
 import requests
@@ -9,7 +9,7 @@ import datetime
 
 @lru_cache
 def ticker_is_valid(ticker):
-    if ticker.upper() in top_10_tickers:
+    if ticker.upper() in equity_symbols:
         return True
 
     else:

@@ -6,7 +6,7 @@ from celery.schedules import crontab
 
 # We have to register Celery's tasks, or they will be un-identified.
 # Import celery tasks (absolute import - not relative)
-CELERY_IMPORTS = ('Analysis.Equity.equity_tasks')
+CELERY_IMPORTS = ('Equity.Equity.equity_tasks')
 CELERY_TIMEZONE = settings.TIME_ZONE
 
 # 10 equities. 13 tokens at 5 req/minute = 65 req/minute
@@ -18,12 +18,12 @@ For 10 it's 60 req/minute.
 """
 CELERY_BEAT_SCHEDULE = {
     "update_historic_data": {
-        "task": "Analysis.Equity.equity_tasks.update_historic_data_with_previous_day_data",
+        "task": "Equity.Equity.equity_tasks.update_historic_data_with_previous_day_data",
         "schedule": crontab(minute=0, hour=4, day_of_week="tue-sat"),
     },
 
     "update_intraday_data": {
-        "task": "Analysis.Equity.equity_tasks.update_intraday_data",
+        "task": "Equity.Equity.equity_tasks.update_intraday_data",
         "schedule": crontab(minute='*/1', hour="9-17", day_of_week="mon,fri")
     }
 }
