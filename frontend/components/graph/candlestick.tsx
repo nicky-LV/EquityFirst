@@ -6,7 +6,7 @@ import {useStore} from "react-redux";
 import {useEffect, useLayoutEffect, useState} from "react";
 
 const timeScaleFormats = {
-    "1D": "HH:mm",
+    "1D": "HH mm",
     "1W": "dd MMM",
     "1M": "dd MMM yy",
     "1Y": "MMM yy"
@@ -15,9 +15,11 @@ const timeScaleFormats = {
 const CandlestickChart = (props) => {
     const [data, setData] = useState([])
     // Accessing redux store
+
+    const selectedEquity = useSelector((store: RootState) => store.selectedEquity)
     const historicalData = useSelector((store: RootState) => store.historicalData)
     const intradayData = useSelector((store: RootState) => store.intradayData)
-    const timeScale = useSelector((store: RootState) => store.timeScale)
+    let timeScale = useSelector((store: RootState) => store.timeScale)
 
     // Initializing store for subscribers
     const store = useStore()
@@ -27,13 +29,15 @@ const CandlestickChart = (props) => {
         // Default timeScale === "1D".
         // Initializes chart with intraday data.
         parseData(timeScale)
-    }, [])
+    }, [historicalData, intradayData])
 
     function timescaleListener(prevTimescale: string) : void {
         const newTimeScale = store.getState().timeScale
         if (newTimeScale !== prevTimescale){
             parseData(newTimeScale)
         }
+
+        timeScale = newTimeScale
     }
 
     function parseData(timeScale: string) : void {
@@ -56,6 +60,7 @@ const CandlestickChart = (props) => {
 
             case "1Y":
                 setData(historicalData.slice(dataLength-365, dataLength-1))
+                break;
         }
     }
 
@@ -90,13 +95,14 @@ const CandlestickChart = (props) => {
     }
 
     const series = [{
+        name: "data",
         data: data
     }]
 
     return (
         historicalData !== null && (
             <ReactApexChart options={options} series={series} type="candlestick"
-                            height={350}/>)
+                            height={350} key={selectedEquity} />)
     )
 
 }

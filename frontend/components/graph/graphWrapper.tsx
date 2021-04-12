@@ -16,7 +16,7 @@ import CandlestickChart from "./candlestick";
 
 const GraphWrapper = (props: any) => {
 
-    const reduxSelectedEquity: string = useSelector((state : RootState) => state.selectedEquity)
+    let reduxSelectedEquity: string = useSelector((state : RootState) => state.selectedEquity)
     const reduxTimeScale: string = useSelector((state : RootState) => state.timeScale)
     // todo: set type
     const historicalData: any = useSelector((state : RootState) => state.historicalData)
@@ -25,7 +25,7 @@ const GraphWrapper = (props: any) => {
     const dispatch = useDispatch()
 
     useEffect(() => {
-        const unsubscribeEquity = store.subscribe(() => equitySubscriber(reduxSelectedEquity))
+        const unsubscribeEquity = store.subscribe(() => equitySubscriber())
         const ws: WebSocket = new WebSocket("ws://127.0.0.1:8000/realtime-data/")
 
         ws.onopen = function(){
@@ -74,18 +74,25 @@ const GraphWrapper = (props: any) => {
             }
         }
 
+        function updateEquity(newEquity){
+            reduxSelectedEquity = newEquity
+        }
+
         return function cleanup(){
             unsubscribeEquity()
         }
     }, [])
 
-    function equitySubscriber(prevEquity: string) : void {
+    function equitySubscriber(){
         const newEquity = store.getState().selectedEquity
-        if (newEquity !== prevEquity){
+        if (newEquity !== reduxSelectedEquity){
             changeGroup()
         }
 
+        reduxSelectedEquity = newEquity
     }
+
+
 
     return(
         historicalData !== null && <CandlestickChart />
