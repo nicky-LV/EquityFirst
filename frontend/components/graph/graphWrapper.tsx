@@ -10,16 +10,16 @@ import {
 } from "../../redux/constants";
 
 
-import {websocketTypeEnum, websocketJSON, intradayData} from "../../ts/types";
+import {websocketTypeEnum, websocketJSON, INTRADAY_DATA, TIMESCALE_ENUM} from "../../ts/types";
 import {useToasts} from "react-toast-notifications";
 import CandlestickChart from "./candlestick";
 
 const GraphWrapper = (props: any) => {
 
     let reduxSelectedEquity: string = useSelector((state : RootState) => state.selectedEquity)
-    const reduxTimeScale: string = useSelector((state : RootState) => state.timeScale)
+    let timescale: string = useSelector((state : RootState) => state.timescale)
     // todo: set type
-    const historicalData: any = useSelector((state : RootState) => state.historicalData)
+    const data: any = useSelector((state : RootState) => state.data)
 
     const toast = useToasts()
     const dispatch = useDispatch()
@@ -46,6 +46,7 @@ const GraphWrapper = (props: any) => {
 
         ws.onmessage = function(response){
             const data = JSON.parse(response.data)
+            console.log(data)
 
             switch (data.STATUS){
                 case "ERROR":
@@ -56,16 +57,8 @@ const GraphWrapper = (props: any) => {
                     )
                     break;
 
-                case "INTRADAY":
-                    const _intradayData = JSON.parse(data.DATA)
-                    dispatch({
-                        type: SET_INTRADAY_DATA,
-                        payload: _intradayData
-                    })
-                    break;
-
-                case "HISTORICAL":
-                    const historicalData = JSON.parse(data.DATA)
+                case "INITIAL_DATA":
+                    const historicalData = data.DATA
                     dispatch({
                         type: SET_HISTORICAL_DATA,
                         payload: historicalData
@@ -74,15 +67,14 @@ const GraphWrapper = (props: any) => {
             }
         }
 
-        function updateEquity(newEquity){
-            reduxSelectedEquity = newEquity
-        }
-
         return function cleanup(){
             unsubscribeEquity()
         }
     }, [])
 
+    /**
+     * Calls changeGroup() to tell the WS consumer to change the equity (and re-transmit data for said equity)
+     */
     function equitySubscriber(){
         const newEquity = store.getState().selectedEquity
         if (newEquity !== reduxSelectedEquity){
@@ -92,13 +84,14 @@ const GraphWrapper = (props: any) => {
         reduxSelectedEquity = newEquity
     }
 
-
-
     return(
-        historicalData !== null && <CandlestickChart />
+        data !== null && <CandlestickChart />
     )
 }
 
+/**
+ * Sends message to WS consumer to change user's group (linked to their selected equity). This will re-transmit data to the client.
+ */
 function changeGroup(){
     const intradayWebsocket = store.getState().intradayWebsocket
     const selectedEquity: string = store.getState().selectedEquity

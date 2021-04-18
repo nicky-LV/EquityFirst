@@ -2,7 +2,8 @@ import {Button} from "@chakra-ui/button";
 import {VStack, Center} from "@chakra-ui/layout";
 import {SET_TIMESCALE} from "../../redux/constants";
 import {useDispatch, useSelector} from "react-redux";
-import {timeScaleValues} from "../../redux/constants";
+
+import {TIME_SCALE_VALUES} from "../../redux/constants";
 
 const timeScaleClasses = {
     '1D': 'top-button',
@@ -24,7 +25,7 @@ const SelectTimeScaleVertical = (props) => {
     return (
         <Center h="100%">
             <VStack spacing={0}>
-                {timeScaleValues.map(timeScale => (
+                {TIME_SCALE_VALUES.map(timeScale => (
                     <Button variant="outline"
                         value={timeScale}
                             key={timeScale}

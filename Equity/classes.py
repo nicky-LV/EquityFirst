@@ -52,7 +52,7 @@ class EquityData(Base):
         historic_data = requests.get(
             f"https://cloud.iexapis.com/stable/stock/{self.ticker}/chart/{time_range}/?token={self.IEX_token}").json()
 
-        # historic data is parsed into list format [D, O, H, L, C, V]
+        # historic data is parsed into list format [D, O, H, L, C]
         historic_data_parsed = [
             [data['date'],
              data['open'],
@@ -70,7 +70,19 @@ class EquityData(Base):
         return historic_data_parsed
 
     def get_historic_data(self):
-        return self.db.get(key=self.ticker)
+        timeframes = {
+            "week": 7,
+            "month": 30,
+            "year": 365
+        }
+
+        historic_data = json.loads(self.db.get(key=self.ticker))
+
+        historic_week, historic_month, historic_year = historic_data[-1: (-1-timeframes["week"]): -1], \
+                                                       historic_data[-1: (-1-timeframes["month"]): -1], \
+                                                       historic_data[-1: (-1-timeframes["year"]): -1]
+
+        return historic_week, historic_month, historic_year
 
     # saves and returns intraday data.
     def set_intraday_data(self):
@@ -95,7 +107,7 @@ class EquityData(Base):
         return intraday_data_parsed
 
     def get_intraday_data(self):
-        return self.db.get(f"{self.ticker}-intraday")
+        return json.loads(self.db.get(f"{self.ticker}-intraday"))
 
     def set_previous_day_data(self):
         # get date from last day saved in redis DB.

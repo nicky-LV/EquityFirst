@@ -63,16 +63,16 @@ class IntraDayData(AsyncJsonWebsocketConsumer):
                         initial_intraday_data = data.get_intraday_data()
 
                         # Retrieve historical data
-                        historical_data = data.get_historic_data()
+                        week_data, month_data, year_data = data.get_historic_data()
 
                         await self.send_json(content={
-                            "STATUS": "INTRADAY",
-                            "DATA": initial_intraday_data
-                        })
-
-                        await self.send_json(content={
-                            "STATUS": "HISTORICAL",
-                            "DATA": historical_data
+                            "STATUS": "INITIAL_DATA",
+                            "DATA": {
+                                "1D": initial_intraday_data,
+                                "1W": week_data,
+                                "1M": month_data,
+                                "1Y": year_data
+                            }
                         })
 
                     except AssertionError:
@@ -157,4 +157,5 @@ class IntraDayData(AsyncJsonWebsocketConsumer):
         """
         Deletes channel once client has disconnected
         """
+        print(f"Channel: {self.channel} deleted.")
         self.channel.delete()

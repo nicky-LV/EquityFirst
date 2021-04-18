@@ -2,7 +2,7 @@ import {ButtonGroup, Button} from "@chakra-ui/button";
 import {Center, Box, Flex, Spacer, HStack, Text, Heading, Divider, Badge} from "@chakra-ui/layout";
 import {useDispatch, useSelector} from "react-redux";
 import {SET_TIMESCALE} from "../../redux/constants";
-import {timeScaleValues} from "../../redux/constants";
+import {TIME_SCALE_VALUES} from "../../redux/constants";
 
 const SelectTimeScale = () => {
     // @ts-ignore
@@ -39,14 +39,14 @@ const SelectTimeScale = () => {
             <Box>
                 <ButtonGroup variant="outline" isAttached size="md" w="100%" alignItems="flex-end"
                 >
-                    {timeScaleValues.map((timeScale) => (
+                    {TIME_SCALE_VALUES.map((timescale) => (
                         <Button
-                            key={timeScale}
-                            value={timeScale}
+                            key={timescale}
+                            value={timescale}
                             onClick={e => handleDispatch(e)}
-                            bg={reduxTimeScale === timeScale ? "gray.100" : null}
+                            bg={reduxTimeScale === timescale ? "gray.100" : null}
                             className="timescale-button">
-                            {timeScale}
+                            {timescale}
                         </Button>
                     ))}
                 </ButtonGroup>

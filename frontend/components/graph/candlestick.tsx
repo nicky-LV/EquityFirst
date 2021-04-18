@@ -4,6 +4,7 @@ import {useSelector} from "react-redux";
 import store, {RootState} from "../../redux/store";
 import {useStore} from "react-redux";
 import {useEffect, useLayoutEffect, useState} from "react";
+import {TIMESCALE_ENUM} from "../../ts/types";
 
 const timeScaleFormats = {
     "1D": "HH mm",
@@ -13,56 +14,17 @@ const timeScaleFormats = {
 }
 
 const CandlestickChart = (props) => {
-    const [data, setData] = useState([])
     // Accessing redux store
 
     const selectedEquity = useSelector((store: RootState) => store.selectedEquity)
     const historicalData = useSelector((store: RootState) => store.historicalData)
-    const intradayData = useSelector((store: RootState) => store.intradayData)
-    let timeScale = useSelector((store: RootState) => store.timeScale)
-
-    // Initializing store for subscribers
-    const store = useStore()
-    store.subscribe(() => timescaleListener(timeScale))
+    const data = useSelector((store: RootState) => store.data)
+    let timescale = useSelector((store: RootState) => store.timescale)
 
     useEffect(() => {
-        // Default timeScale === "1D".
+        // Default timescale === "1D".
         // Initializes chart with intraday data.
-        parseData(timeScale)
-    }, [historicalData, intradayData])
-
-    function timescaleListener(prevTimescale: string) : void {
-        const newTimeScale = store.getState().timeScale
-        if (newTimeScale !== prevTimescale){
-            parseData(newTimeScale)
-        }
-
-        timeScale = newTimeScale
-    }
-
-    function parseData(timeScale: string) : void {
-        const dataLength = historicalData.length
-        switch (timeScale){
-            case "1D":
-                // Show intraday data
-                setData(intradayData);
-                break;
-
-            case "1W":
-                // Truncate data to 7 points
-                setData(historicalData.slice(dataLength-7, dataLength-1));
-                break;
-
-            case "1M":
-                // Truncate data to 30 points
-                setData(historicalData.slice(dataLength-30, dataLength-1));
-                break;
-
-            case "1Y":
-                setData(historicalData.slice(dataLength-365, dataLength-1))
-                break;
-        }
-    }
+    }, [])
 
     const options = {
         chart: {
@@ -71,8 +33,8 @@ const CandlestickChart = (props) => {
             toolbar: {
                 show: true,
                 tools: {
-                    zoomin: timeScale !== "1D",
-                    zoomout: timeScale !== "1D",
+                    zoomin: timescale !== TIMESCALE_ENUM.DAY,
+                    zoomout: timescale !== TIMESCALE_ENUM.DAY,
                     download: true,
                     zoom: false,
                     selection: false,
@@ -84,7 +46,7 @@ const CandlestickChart = (props) => {
         xaxis: {
             type: 'datetime',
             labels: {
-                format: timeScaleFormats[timeScale]
+                format: timeScaleFormats[timescale]
             }
         },
         yaxis: {
