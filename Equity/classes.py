@@ -72,7 +72,7 @@ class EquityData(Base):
 
         return historic_data_parsed
 
-    def get_historic_data(self):
+    def get_historic_data(self, dict_format=False):
         """
         Retrieve historical data for an equity.
         :return: list - nested list of historical data [[date, open, high, low, close], [...]]
@@ -80,26 +80,30 @@ class EquityData(Base):
 
         historic_data = json.loads(self.db.get(key=self.ticker))
 
-        weekly_data = []
-        monthly_data = []
-        yearly_data = []
+        if dict_format:
+            return historic_data
 
-        count = 0
-        for key, value in historic_data.items():
-            data = [key]
-            for i in range(len(value)):
-                data.append(value[i])
+        else:
+            weekly_data = []
+            monthly_data = []
+            yearly_data = []
 
-            if count > len(historic_data) - 31:
-                monthly_data.append(data)
-                if count > len(historic_data) - 8:
-                    weekly_data.append(data)
+            count = 0
+            for key, value in historic_data.items():
+                data = [key]
+                for i in range(len(value)):
+                    data.append(value[i])
 
-            yearly_data.append(data)
+                if count > len(historic_data) - 31:
+                    monthly_data.append(data)
+                    if count > len(historic_data) - 8:
+                        weekly_data.append(data)
 
-            count += 1
+                yearly_data.append(data)
 
-        return weekly_data, monthly_data, historic_data
+                count += 1
+
+            return weekly_data, monthly_data, yearly_data
 
     # saves and returns intraday data.
     def set_intraday_data(self):
