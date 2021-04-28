@@ -16,7 +16,7 @@ const SelectTimeScaleVertical = (props) => {
     const dispatch = useDispatch()
 
     //@ts-ignore
-    const reduxTimeScale = useSelector((state) => state.timeScale)
+    const reduxTimeScale = useSelector((state) => state.timescale)
 
     function handleDispatch(e){
         dispatch({type: SET_TIMESCALE, payload: e.currentTarget.value})

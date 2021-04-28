@@ -49,28 +49,28 @@ export function rootReducer(storeState=initialStoreState, dispatch){
                     return Object.assign({}, storeState,
                         {
                             data: data,
-                            timeScale: dispatch.payload,
+                            timescale: dispatch.payload,
                             updateScale: "Every minute"})
 
                 case TIMESCALE_ENUM.WEEK:
                     return Object.assign({}, storeState,
                         {
                             data: data,
-                            timeScale: dispatch.payload,
+                            timescale: dispatch.payload,
                             updateScale: "Daily"
                         })
                 case TIMESCALE_ENUM.MONTH:
                     return Object.assign({}, storeState,
                         {
                             data: data,
-                            timeScale: dispatch.payload,
+                            timescale: dispatch.payload,
                             updateScale: "Daily"
                         })
                 case TIMESCALE_ENUM.YEAR:
                     return Object.assign({}, storeState,
                         {
                             data: data,
-                            timeScale: dispatch.payload,
+                            timescale: dispatch.payload,
                             updateScale: "Daily"})
                 default:
                     return Object.assign({}, storeState,
