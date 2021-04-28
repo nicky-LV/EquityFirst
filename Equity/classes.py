@@ -49,20 +49,23 @@ class EquityData(Base):
 
     # saves and returns historic data.
     def set_historic_data(self, time_range="1y"):
+        """
+        Set the historical data for an equity.
+        :param time_range: str - "1y" "1m" "1d" for 1 year, month or day respectively. Leave blank for all historical data.
+        :return: dict - {date: [open, high, low, close], ...}
+        """
         historic_data = requests.get(
             f"https://cloud.iexapis.com/stable/stock/{self.ticker}/chart/{time_range}/?token={self.IEX_token}").json()
 
-        # historic data is parsed into list format [D, O, H, L, C]
-        historic_data_parsed = [
-            [data['date'],
-             data['open'],
-             data['high'],
-             data['low'],
-             data['close']
-             ]
-
+        historic_data_parsed = {
+            data['date']:  [
+                data['open'],
+                data['high'],
+                data['low'],
+                data['close']
+            ]
             for data in historic_data
-        ]
+        }
 
         # this historic data must be saved as a string within the redis database (serialize to json)
         self.db.set(key=self.ticker, value=json.dumps(historic_data_parsed), permanent=True)
@@ -70,26 +73,40 @@ class EquityData(Base):
         return historic_data_parsed
 
     def get_historic_data(self):
-        timeframes = {
-            "week": 7,
-            "month": 30,
-            "year": 365
-        }
+        """
+        Retrieve historical data for an equity.
+        :return: list - nested list of historical data [[date, open, high, low, close], [...]]
+        """
 
         historic_data = json.loads(self.db.get(key=self.ticker))
 
-        historic_week, historic_month, historic_year = historic_data[-1: (-1-timeframes["week"]): -1], \
-                                                       historic_data[-1: (-1-timeframes["month"]): -1], \
-                                                       historic_data[-1: (-1-timeframes["year"]): -1]
+        weekly_data = []
+        monthly_data = []
+        yearly_data = []
 
-        return historic_week, historic_month, historic_year
+        count = 0
+        for key, value in historic_data.items():
+            data = [key]
+            for i in range(len(value)):
+                data.append(value[i])
+
+            if count > len(historic_data) - 31:
+                monthly_data.append(data)
+                if count > len(historic_data) - 8:
+                    weekly_data.append(data)
+
+            yearly_data.append(data)
+
+            count += 1
+
+        return weekly_data, monthly_data, historic_data
 
     # saves and returns intraday data.
     def set_intraday_data(self):
         intraday_data = requests.get(
             f"https://cloud.iexapis.com/stable/stock/{self.ticker}/intraday-prices/?token={self.IEX_token}").json()
 
-        # intraday data is parsed into dict format with keys [date, minute, average, open, close, high, low, volume]
+        # intraday data is parsed into dict format with keys [minute, open, high, low, close]
 
         intraday_data_parsed = [
             [data['minute'],
@@ -107,6 +124,11 @@ class EquityData(Base):
         return intraday_data_parsed
 
     def get_intraday_data(self):
+        """
+        Retrieve intraday data for an equity.
+        :return: list - Nested list of data in format [[date, open, high, low, close], [...]]
+        """
+
         return json.loads(self.db.get(f"{self.ticker}-intraday"))
 
     def set_previous_day_data(self):
@@ -119,10 +141,9 @@ class EquityData(Base):
             previous_day_data_parsed = {
                 'date': previous_day_data['date'],
                 'open': previous_day_data['open'],
-                'close': previous_day_data['close'],
                 'high': previous_day_data['high'],
                 'low': previous_day_data['low'],
-                'volume': previous_day_data['volume']
+                'close': previous_day_data['close']
             }
 
             # retrieve current historical data
