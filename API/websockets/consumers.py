@@ -111,10 +111,12 @@ class IntraDayData(AsyncJsonWebsocketConsumer):
         """
         await self.send(text_data=content['text'])
 
+    """
     async def websocket_disconnect(self, message):
         # Todo: remove channel
         await database_sync_to_async(self.remove_channel)()
         await self.close()
+    """
 
     # ---------------------------------------------
     # DB queries

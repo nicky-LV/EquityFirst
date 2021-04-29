@@ -1,21 +1,15 @@
 import {Select} from "@chakra-ui/select";
 import {useSelector, useDispatch} from "react-redux";
-import {useState} from "react";
 import {SET_SELECTED_EQUITY} from "../../redux/constants";
 import {Heading, Text, Box, VStack, Center} from "@chakra-ui/layout";
-import {Divider} from "@chakra-ui/layout";
+import {RootState} from "../../redux/store";
 
 const SelectEquity = (props) => {
-    const [selectedTicker, setSelectedTicker] = useState<string>("MSFT")
-
-    // redux dispatch
+    // dispatch function
     const dispatch = useDispatch()
 
-    //@ts-ignore
-    const tickerOptions = useSelector((state) => state.tickerOptions)
-
-    //@ts-ignore
-    const selectedEquity = useSelector((state) => state.selectedEquity)
+    const tickerOptions = useSelector((state: RootState) => state.tickerOptions)
+    const selectedEquity = useSelector((state: RootState) => state.selectedEquity)
 
     return (
         <Center h="100%" w="100%">
@@ -30,9 +24,6 @@ const SelectEquity = (props) => {
                 <Box className="card-padded-content">
 
                     <Select size="lg" variant="outline" value={selectedEquity} placeholder="Select Equity" onChange={(e) => {
-                        // sets local state with selected ticker
-                        setSelectedTicker(e.target.value)
-
                         // updates redux store with selected ticker
                         dispatch({
                             type: SET_SELECTED_EQUITY,

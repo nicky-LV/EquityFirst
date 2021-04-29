@@ -3,12 +3,11 @@ import {Center, Box, Flex, Spacer, HStack, Text, Heading, Divider, Badge} from "
 import {useDispatch, useSelector} from "react-redux";
 import {SET_TIMESCALE} from "../../redux/constants";
 import {TIME_SCALE_VALUES} from "../../redux/constants";
+import {RootState} from "../../redux/store";
 
 const SelectTimeScale = () => {
-    // @ts-ignore
-    const reduxTimeScale = useSelector((state) => state.timeScale)
-    // @ts-ignore
-    const updateScale = useSelector((state) => state.updateScale)
+    const reduxTimeScale = useSelector((state : RootState) => state.timescale)
+    const updateScale = useSelector((state : RootState) => state.updateScale)
 
     const dispatch = useDispatch()
 

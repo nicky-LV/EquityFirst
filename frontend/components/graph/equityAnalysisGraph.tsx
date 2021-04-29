@@ -13,7 +13,6 @@ const EquityAnalysisGraph = (props) => {
 
 
     useEffect(() => {
-        console.log(timescale)
         axios.get(`${process.env.NEXT_PUBLIC_API_URL}/${technicalIndicator}/${equity}/${timescale}/`)
             .then(response => {
                 console.log(response)
@@ -35,10 +34,6 @@ const EquityAnalysisGraph = (props) => {
                 </HStack>
             </Box>
             <Spacer />
-
-            <Box>
-                <SelectTimeScaleVertical />
-            </Box>
 
         </Flex>
     )

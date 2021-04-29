@@ -1,39 +1,27 @@
-import {VStack, Text, Heading, Center, HStack, StackDivider, Box, Badge, Flex, Spacer} from "@chakra-ui/layout";
-import {useDispatch, useSelector} from "react-redux";
-import {useEffect, useState} from "react";
-import axios from 'axios';
-import {SET_TECHNICAL_INDICATOR} from "../../redux/constants";
+import {VStack, Text, Heading, Center, HStack, Box, Badge} from "@chakra-ui/layout";
+import {useSelector} from "react-redux";
+import {useState} from "react";
 import {useToasts} from "react-toast-notifications";
 import {Select} from "@chakra-ui/select";
+import {RootState} from "../../redux/store";
+import {useQuery} from "react-query";
+import {getTechnicalIndicators} from "../../pages/api/getTechnicalIndicators";
+import {useDispatchTechnicalIndicator} from "./dispatchTechnicalIndicator";
 
-const SelectAnalysis = (props) => {
-    const [technicalIndicatorOptions, setTechnicalIndicatorOptions] = useState<string[] | []>([])
-    //@ts-ignore
-
-    const selectedEquity = useSelector((state) => state.selectedEquity)
+const SelectAnalysis = () => {
+    const selectedEquity = useSelector((state: RootState) => state.selectedEquity)
+    const updateIndicator = useDispatchTechnicalIndicator()
 
     const toast = useToasts()
+    const query = useQuery('getTechnicalIndicators', getTechnicalIndicators)
 
-    const dispatch = useDispatch()
-
-    // get available technical indicators
-    useEffect(() => {
-        axios.get(process.env.NEXT_PUBLIC_APP_URL + "api/get-technical-indicators/")
-            .then(result => {
-                setTechnicalIndicatorOptions(result.data)
-            })
-            .catch(error => {
-                toast.addToast("Error in retrieving technical indicators", {
-                    appearance: "warning",
-                    autoDismiss: true
-
-                })
-            })
-    }, [])
-
-    function handleSelectTechnicalIndicator(e){
-        dispatch({type: SET_TECHNICAL_INDICATOR, payload: e.currentTarget.value})
+    if (query.isError){
+        toast.addToast("Error in retrieving technical indicators", {
+            appearance: "warning",
+            autoDismiss: true
+        })
     }
+
     return (
         <VStack>
             <Heading fontSize="xl" textAlign="center">
@@ -66,8 +54,8 @@ const SelectAnalysis = (props) => {
 
             <Box h="100%" w="100%">
                 <Center h="100%">
-                    <Select marginTop="10px" w="100%" onChange={e => handleSelectTechnicalIndicator(e)}>
-                        {technicalIndicatorOptions.map(technicalIndicator => (
+                    <Select marginTop="10px" w="100%" onChange={e => updateIndicator(e)}>
+                        {query.isSuccess && query.data.data.map(technicalIndicator => (
                             <option
                                 value={technicalIndicator} key={technicalIndicator}>{technicalIndicator}</option>
                         ))}
