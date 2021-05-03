@@ -1,12 +1,14 @@
 import {GridItem} from "@chakra-ui/react";
+import EquityPrice from "./equityPrice";
 
 const Sidebar = (props) => {
     return (
         <GridItem
             rowSpan={12}
-            colSpan={1}
-            style={{display: "flex", flexDirection: "column"}}
+            colSpan={2}
+            className="flex"
         >
+            <EquityPrice />
 
         </GridItem>
     )

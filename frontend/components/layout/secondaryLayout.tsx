@@ -1,11 +1,8 @@
 import {Grid, GridItem, Box} from "@chakra-ui/layout";
-import SelectEquity from "../cards/selectEquity";
 import SelectAnalysis from "../cards/selectAnalysis";
 import SelectTimeScale from "../graph/selectTimeScale";
-import SelectTimeScaleVertical from "../graph/selectTimeScaleVertical";
 import EquityAnalysisGraph from "../graph/equityAnalysisGraph";
 import GraphWrapper from "../graph/graphWrapper";
-import CandlestickChart from "../graph/candlestick";
 
 const SecondaryLayout = () => {
 
@@ -21,41 +18,10 @@ const SecondaryLayout = () => {
         >
 
 
-            {/* Card 1 */}
-            <GridItem
-                borderRadius="lg"
-                colSpan={6}
-                rowSpan={3}>
-
-                <Box bg="card" w="100%" h="100%" borderRadius="lg" className="card">
-                    <SelectEquity />
-                </Box>
-            </GridItem>
-
-            {/* Card 2 */}
-            <GridItem
-                colSpan={3}
-                rowSpan={3}>
-
-                <Box bg="card" w="100%" h="100%" borderRadius="lg" className="card">
-
-                </Box>
-
-                {/* Card 3 */}
-            </GridItem>
-            <GridItem
-                colSpan={3}
-                rowSpan={3}>
-
-                <Box bg="card" w="100%" h="100%" borderRadius="lg" className="card">
-                    Hi
-                </Box>
-            </GridItem>
-
             {/* Row (for main graph) */}
             <GridItem
                 colSpan={9}
-                rowSpan={6}>
+                rowSpan={8}>
                 <Box bg="card" w="100%" h="100%" borderRadius="lg" className="card">
                     <SelectTimeScale />
                     <GraphWrapper />
@@ -75,7 +41,7 @@ const SecondaryLayout = () => {
             {/* Secondary graph */}
             <GridItem
                 colSpan={9}
-                rowSpan={3}>
+                rowSpan={4}>
                 <Box bg="card" w="100%" h="100%" borderRadius="lg" className="card">
                     <EquityAnalysisGraph />
 
