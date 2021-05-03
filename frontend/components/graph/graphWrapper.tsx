@@ -46,7 +46,6 @@ const GraphWrapper = (props: any) => {
 
         ws.onmessage = function(response){
             const data = JSON.parse(response.data)
-            console.log(data)
 
             switch (data.STATUS){
                 case "ERROR":
