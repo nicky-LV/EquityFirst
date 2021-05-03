@@ -13,6 +13,7 @@ const EquityAnalysisGraph = (props) => {
 
 
     useEffect(() => {
+        const ws = new WebSocket(`ws://127.0.0.1:8000/realtime-price/${equity}/`)
         axios.get(`${process.env.NEXT_PUBLIC_API_URL}/${technicalIndicator}/${equity}/${timescale}/`)
             .then(response => {
                 console.log(response)
