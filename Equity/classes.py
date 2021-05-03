@@ -1,10 +1,14 @@
-from Equity.constants.equity_symbols import equity_symbols
-from django.conf import settings
-from functools import lru_cache
 import requests
 import json
-from Redis.classes import Redis
 import datetime
+from datetime import timedelta
+from functools import lru_cache
+
+from django.conf import settings
+from Equity.constants.equity_symbols import equity_symbols
+from Redis.classes import Redis
+
+from Equity.constants.timerange import timeranges
 
 
 @lru_cache
@@ -40,14 +44,23 @@ class Base:
         self.db = Redis()
         self.IEX_token = settings.IEXCLOUD_TOKEN
 
+    @property
+    def get_price(self):
+        price = float(requests.get(f"https://cloud.iexapis.com/stable/stock/{self.equity}/price/?token={settings.IEXCLOUD_TOKEN}").json())
+        return price
+
+    @property
+    def close(self):
+        """
+        Returns closing information (close price, timestamp) for a specified equity symbol.
+        :return: dict {'close': float, 'timestamp' int}
+        """
+        return json.loads(self.db.get(key=f"{self.equity}-close"))
+
 
 class EquityData(Base):
     def __init__(self, equity):
         super().__init__(equity=equity)
-
-    def get_price(self):
-        price = float(requests.get(f"https://cloud.iexapis.com/stable/stock/{self.equity}/price/?token={settings.IEXCLOUD_TOKEN}").json())
-        return price
 
     # saves and returns historic data.
     def set_historic_data(self, time_range="1y"):
@@ -162,3 +175,79 @@ class EquityData(Base):
 
         else:
             raise ArithmeticError("Cannot assign data for previous trading day because today - yesterday != 1 day.")
+
+
+# todo: add docstrings to EquityAnalysis class (and other classes for that matter)
+class EquityAnalysis(Base):
+    def __init__(self, equity):
+        super().__init__(equity=equity)
+
+    sort_dates = lambda date_str: datetime.datetime.strptime(date_str, "%Y-%m-%d")
+
+    @staticmethod
+    def valid_timerange(timerange=None):
+        if type(timerange) == str and timerange in timeranges:
+            return True
+
+        else:
+            return False
+
+    def get_sma(self, range_="1m", ytd=False):
+        if EquityAnalysis.valid_timerange(timerange=range_) and not ytd:
+            sma = {}
+            data = self.get_sma(ytd=True)
+            today_date = datetime.datetime.now()
+            for i in range(1, timeranges[range_] + 1):
+                date = (today_date - timedelta(days=i)).strftime("%Y-%m-%d")
+                if date in data:
+                    sma[date] = data[date]
+
+            # sma should be in ascending order (as older dates have lesser x coordinates than recent dates)
+            ascending_sma = {key: sma[key] for key in sorted(sma, key=EquityAnalysis.sort_dates)}
+            return ascending_sma
+
+        if ytd:
+            # SMA data is already saved in ascending order, so we don't have to sort the data.
+            return json.loads(self.db.get(key=f"{self.equity}-sma"))
+
+    def set_sma(self, range_=None, ytd=False):
+        if self.valid_timerange(range_) and not ytd:
+            try:
+                sma_data = self.get_sma(ytd=True)
+
+            except KeyError:
+                # Key "<equity>-sma" does not exist in database.
+                sma_data = {}
+
+            data = requests.get(f"https://cloud.iexapis.com/stable/stock/{self.equity}/indicator/sma?range={range_}&token={settings.IEXCLOUD_TOKEN}").json()
+
+            # destructure JSON data into sma data (list) and chart (list of objects)
+            sma, chart = data
+            for index, sma in enumerate(data[sma][0]):
+                if sma is not None:
+                    # data_parsed is populated with date: sma value
+                    date = data[chart][index]['date']
+                    if date not in sma_data:
+                        sma_data[date] = sma
+
+            sma_data_parsed = {key: sma_data[key] for key in sorted(sma_data, key=EquityAnalysis.sort_dates)}
+
+            self.db.set(key=f"{self.equity}-sma", value=json.dumps(sma_data_parsed), permanent=True)
+
+        elif ytd:
+            # todo: duplicate code, move to function
+            data = requests.get(f"https://cloud.iexapis.com/stable/stock/{self.equity}/indicator/sma?range={range_}&token={settings.IEXCLOUD_TOKEN}").json()
+            sma_data = {}
+            sma, chart = data
+            for index, sma in enumerate(data[sma][0]):
+                if sma is not None:
+                    # data_parsed is populated with date: sma value
+                    date = data[chart][index]['date']
+                    if date not in sma_data:
+                        sma_data[date] = sma
+
+            sma_data_parsed = {key: sma_data[key] for key in sorted(sma_data, key=EquityAnalysis.sort_dates)}
+            self.db.set(key=f"{self.equity}-sma", value=json.dumps(sma_data_parsed), permanent=True)
+
+        else:
+            raise ValueError("Invalid value for range.")

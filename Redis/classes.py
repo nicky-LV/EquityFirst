@@ -40,7 +40,7 @@ class Redis:
         # default expiration date (in seconds)
         self.default_expiry = 10
 
-    def get(self, key=None, all_keys=False):
+    def get(self, key=None):
         # data is stored as bytes (8 bits(binary)) in memory). A bytestring is a character + encoding
         # we can decode these bytestrings into english (utf-8), by decoding with utf-8.
 
