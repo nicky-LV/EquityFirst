@@ -6,7 +6,7 @@ import functools
 
 from API.models import Channels, Groups
 
-from Equity.equity_symbols import equity_symbols
+from Equity.constants.equity_symbols import equity_symbols
 from Equity.classes import EquityData
 
 

@@ -7,6 +7,8 @@ from django.conf import settings
 import requests
 import functools
 
+from Equity.constants.market_times import check_market_open
+
 
 class RealtimePriceConsumer(AsyncJsonWebsocketConsumer):
     def __init__(self):
@@ -29,14 +31,17 @@ class RealtimePriceConsumer(AsyncJsonWebsocketConsumer):
         await self.accept()
         # Send initial price-data
         price = requests.get(f"https://cloud.iexapis.com/stable/stock/{self.equity}/price/?token={settings.IEXCLOUD_TOKEN}").json()
-        await self.update_price(data=price)
+        await self.send_json(content=price)
 
     async def disconnect(self, code):
         await database_sync_to_async(self.channel.delete)()
         await self.close()
 
     async def update_price(self, data):
-        await self.send_json(content={'price': data})
+        # Checks if market is open (thus a price update is available)
+        if check_market_open() is True:
+            price = data['text']
+            await self.send_json(content=price)
 
     def get_channel(self):
         """
