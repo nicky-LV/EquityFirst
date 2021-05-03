@@ -1,4 +1,5 @@
 import '../styles/globals.css'
+import 'tailwindcss/tailwind.css'
 import {ChakraProvider} from "@chakra-ui/react";
 import {QueryClientProvider, QueryClient} from "react-query";
 import chakraTheme from "../styles/chakraTheme";
