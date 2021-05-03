@@ -3,12 +3,10 @@ import datetime
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from Equity.equity_symbols import equity_symbols
+from Equity.constants.equity_symbols import equity_symbols
 from Equity.classes import EquityData
 from Redis.classes import Redis
 from datetime import datetime, timedelta
-import json
-import itertools
 
 from functools import lru_cache
 

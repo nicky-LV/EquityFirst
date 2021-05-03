@@ -2,10 +2,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 
-from Equity.equity_symbols import equity_symbols
-from Equity.technical_indicator_list import indicator_list
-
-import json
+from Equity.constants.equity_symbols import equity_symbols
+from Equity.constants.technical_indicator_list import indicator_list
 
 from Redis.classes import Redis
 db = Redis()

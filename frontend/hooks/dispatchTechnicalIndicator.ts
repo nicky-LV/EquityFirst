@@ -1,5 +1,5 @@
 import {useDispatch} from "react-redux";
-import {SET_TECHNICAL_INDICATOR} from "../../redux/constants";
+import {SET_TECHNICAL_INDICATOR} from "../redux/constants";
 
 export const useDispatchTechnicalIndicator = () => {
     const dispatch = useDispatch()

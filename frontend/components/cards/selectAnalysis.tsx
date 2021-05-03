@@ -6,7 +6,7 @@ import {Select} from "@chakra-ui/select";
 import {RootState} from "../../redux/store";
 import {useQuery} from "react-query";
 import {getTechnicalIndicators} from "../../pages/api/getTechnicalIndicators";
-import {useDispatchTechnicalIndicator} from "./dispatchTechnicalIndicator";
+import {useDispatchTechnicalIndicator} from "../../hooks/dispatchTechnicalIndicator";
 
 const SelectAnalysis = () => {
     const selectedEquity = useSelector((state: RootState) => state.selectedEquity)

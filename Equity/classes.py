@@ -1,4 +1,4 @@
-from Equity.equity_symbols import equity_symbols
+from Equity.constants.equity_symbols import equity_symbols
 from django.conf import settings
 from functools import lru_cache
 import requests
@@ -33,19 +33,21 @@ def compare_dates(date):
 
 
 class Base:
-    def __init__(self, ticker):
-        if ticker_is_valid(ticker):
-            self.ticker = ticker.upper()
+    def __init__(self, equity):
+        if ticker_is_valid(equity):
+            self.equity = equity.upper()
 
         self.db = Redis()
         self.IEX_token = settings.IEXCLOUD_TOKEN
 
 
 class EquityData(Base):
-    def __init__(self, ticker):
-        super().__init__(ticker=ticker)
+    def __init__(self, equity):
+        super().__init__(equity=equity)
 
-    # ticker is valid (due to tests done within the base class)
+    def get_price(self):
+        price = float(requests.get(f"https://cloud.iexapis.com/stable/stock/{self.equity}/price/?token={settings.IEXCLOUD_TOKEN}").json())
+        return price
 
     # saves and returns historic data.
     def set_historic_data(self, time_range="1y"):
@@ -55,7 +57,7 @@ class EquityData(Base):
         :return: dict - {date: [open, high, low, close], ...}
         """
         historic_data = requests.get(
-            f"https://cloud.iexapis.com/stable/stock/{self.ticker}/chart/{time_range}/?token={self.IEX_token}").json()
+            f"https://cloud.iexapis.com/stable/stock/{self.equity}/chart/{time_range}/?token={self.IEX_token}").json()
 
         historic_data_parsed = {
             data['date']:  [
@@ -68,7 +70,7 @@ class EquityData(Base):
         }
 
         # this historic data must be saved as a string within the redis database (serialize to json)
-        self.db.set(key=self.ticker, value=json.dumps(historic_data_parsed), permanent=True)
+        self.db.set(key=self.equity, value=json.dumps(historic_data_parsed), permanent=True)
 
         return historic_data_parsed
 
@@ -78,7 +80,7 @@ class EquityData(Base):
         :return: list - nested list of historical data [[date, open, high, low, close], [...]]
         """
 
-        historic_data = json.loads(self.db.get(key=self.ticker))
+        historic_data = json.loads(self.db.get(key=self.equity))
 
         if dict_format:
             return historic_data
@@ -108,7 +110,7 @@ class EquityData(Base):
     # saves and returns intraday data.
     def set_intraday_data(self):
         intraday_data = requests.get(
-            f"https://cloud.iexapis.com/stable/stock/{self.ticker}/intraday-prices/?token={self.IEX_token}").json()
+            f"https://cloud.iexapis.com/stable/stock/{self.equity}/intraday-prices/?token={self.IEX_token}").json()
 
         # intraday data is parsed into dict format with keys [minute, open, high, low, close]
 
@@ -123,7 +125,7 @@ class EquityData(Base):
             for data in intraday_data
         ]
 
-        self.db.set(key=f"{self.ticker}-intraday", value=json.dumps(intraday_data_parsed), permanent=True)
+        self.db.set(key=f"{self.equity}-intraday", value=json.dumps(intraday_data_parsed), permanent=True)
 
         return intraday_data_parsed
 
@@ -132,15 +134,14 @@ class EquityData(Base):
         Retrieve intraday data for an equity.
         :return: list - Nested list of data in format [[date, open, high, low, close], [...]]
         """
-
-        return json.loads(self.db.get(f"{self.ticker}-intraday"))
+        return json.loads(self.db.get(f"{self.equity}-intraday"))
 
     def set_previous_day_data(self):
         # get date from last day saved in redis DB.
-        previous_day_saved = json.loads(self.db.get(key=self.ticker))[-1]['date']
+        previous_day_saved = json.loads(self.db.get(key=self.equity))[-1]['date']
         if compare_dates(previous_day_saved):
             previous_day_data = requests.get(
-                f"https://cloud.iexapis.com/stable/stock/{self.ticker}/previous/?token={self.IEX_token}").json()
+                f"https://cloud.iexapis.com/stable/stock/{self.equity}/previous/?token={self.IEX_token}").json()
 
             previous_day_data_parsed = {
                 'date': previous_day_data['date'],
@@ -151,11 +152,11 @@ class EquityData(Base):
             }
 
             # retrieve current historical data
-            historical_data = json.loads(self.db.get(key=self.ticker))
+            historical_data = json.loads(self.db.get(key=self.equity))
             historical_data.append(previous_day_data_parsed)
 
             # update the historical data with previous day's data
-            self.db.set(key=self.ticker, value=historical_data, permanent=True)
+            self.db.set(key=self.equity, value=historical_data, permanent=True)
 
             return historical_data
 
