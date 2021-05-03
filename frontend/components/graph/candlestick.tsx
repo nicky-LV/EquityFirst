@@ -64,7 +64,7 @@ const CandlestickChart = (props) => {
     return (
         historicalData !== null && (
             <ReactApexChart options={options} series={series} type="candlestick"
-                            height={350} key={selectedEquity} />)
+                            height={350} key={[selectedEquity, timescale]}/>)
     )
 
 }
