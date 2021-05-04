@@ -48,7 +48,7 @@ class Redis:
             raise KeyError("Key does not exist within the database.")
 
         else:
-            return self.db.get(key).decode('utf-8')
+            return json.loads(self.db.get(key))
 
     # default expiry date for each key is until END OF DAY
     def set(self, key, value, permanent=False):

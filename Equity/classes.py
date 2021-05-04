@@ -177,77 +177,63 @@ class EquityData(Base):
             raise ArithmeticError("Cannot assign data for previous trading day because today - yesterday != 1 day.")
 
 
-# todo: add docstrings to EquityAnalysis class (and other classes for that matter)
-class EquityAnalysis(Base):
-    def __init__(self, equity):
+class EquityMovingAvg(Base):
+    def __init__(self, equity: str, time_range: str, exponential: bool):
         super().__init__(equity=equity)
 
-    sort_dates = lambda date_str: datetime.datetime.strptime(date_str, "%Y-%m-%d")
-
-    @staticmethod
-    def valid_timerange(timerange=None):
-        if type(timerange) == str and timerange in timeranges:
-            return True
-
+        # Verifies that specified time_range is valid
+        if time_range in timeranges:
+            self.time_range = time_range
         else:
-            return False
+            raise ValueError("Invalid time-range specified.")
 
-    def get_sma(self, range_="1m", ytd=False):
-        if EquityAnalysis.valid_timerange(timerange=range_) and not ytd:
-            sma = {}
-            data = self.get_sma(ytd=True)
-            today_date = datetime.datetime.now()
-            for i in range(1, timeranges[range_] + 1):
-                date = (today_date - timedelta(days=i)).strftime("%Y-%m-%d")
-                if date in data:
-                    sma[date] = data[date]
+        # String representation of indicator
+        self.moving_average_indicator = "sma" if not exponential else "ema"
 
-            # sma should be in ascending order (as older dates have lesser x coordinates than recent dates)
-            ascending_sma = {key: sma[key] for key in sorted(sma, key=EquityAnalysis.sort_dates)}
-            return ascending_sma
+    @property
+    def moving_average(self):
+        return self.db.get(key=f"{self.equity}-{self.moving_average_indicator}")
 
-        if ytd:
-            # SMA data is already saved in ascending order, so we don't have to sort the data.
-            return json.loads(self.db.get(key=f"{self.equity}-sma"))
+    def set_moving_average(self):
+        """
+        Caches the moving average (simple or exponential) into database.
+        """
 
-    def set_sma(self, range_=None, ytd=False):
-        if self.valid_timerange(range_) and not ytd:
-            try:
-                sma_data = self.get_sma(ytd=True)
+        available_data = {}
+        try:
+            available_data = self.db.get(f"{self.equity}-{self.moving_average_indicator}")
 
-            except KeyError:
-                # Key "<equity>-sma" does not exist in database.
-                sma_data = {}
+        except KeyError:
+            pass
 
-            data = requests.get(f"https://cloud.iexapis.com/stable/stock/{self.equity}/indicator/sma?range={range_}&token={settings.IEXCLOUD_TOKEN}").json()
+        data = self.calculate_moving_avg()
 
-            # destructure JSON data into sma data (list) and chart (list of objects)
-            sma, chart = data
-            for index, sma in enumerate(data[sma][0]):
-                if sma is not None:
-                    # data_parsed is populated with date: sma value
-                    date = data[chart][index]['date']
-                    if date not in sma_data:
-                        sma_data[date] = sma
+        # Apply data to available_data
+        for date, ma in data.items():
+            # Ensures we do not handle duplicate data
+            if date not in available_data:
+                available_data[date] = ma
 
-            sma_data_parsed = {key: sma_data[key] for key in sorted(sma_data, key=EquityAnalysis.sort_dates)}
+        # Sorts into ascending order (by date).
+        sort_by_date = lambda date_str: datetime.datetime.strptime(date_str, "%Y-%m-%d")
+        available_data = {key: available_data[key] for key in sorted(available_data, key=sort_by_date)}
 
-            self.db.set(key=f"{self.equity}-sma", value=json.dumps(sma_data_parsed), permanent=True)
+        # Cached to Redis database.
+        self.db.set(key=f"{self.equity}-{self.moving_average_indicator}", value=json.dumps(available_data), permanent=True)
 
-        elif ytd:
-            # todo: duplicate code, move to function
-            data = requests.get(f"https://cloud.iexapis.com/stable/stock/{self.equity}/indicator/sma?range={range_}&token={settings.IEXCLOUD_TOKEN}").json()
-            sma_data = {}
-            sma, chart = data
-            for index, sma in enumerate(data[sma][0]):
-                if sma is not None:
-                    # data_parsed is populated with date: sma value
-                    date = data[chart][index]['date']
-                    if date not in sma_data:
-                        sma_data[date] = sma
+    def calculate_moving_avg(self):
+        """
+        Returns the moving average (simple or exponential) sorted in ascending order.
+        :return: array - {"%Y-%m-%d": moving_average float, ...}
+        """
+        parsed_data = {}
+        data = requests.get(f"https://cloud.iexapis.com/stable/stock/{self.equity}/indicator/{self.moving_average_indicator}?range={self.time_range}&token={settings.IEXCLOUD_TOKEN}").json()
 
-            sma_data_parsed = {key: sma_data[key] for key in sorted(sma_data, key=EquityAnalysis.sort_dates)}
-            self.db.set(key=f"{self.equity}-sma", value=json.dumps(sma_data_parsed), permanent=True)
+        ma, chart = data
 
-        else:
-            raise ValueError("Invalid value for range.")
+        for index, ma in enumerate(reversed(data[ma][0])):
+            if ma is not None:
+                parsed_data[data[chart][index]["date"]] = ma
+
+        return parsed_data
+

@@ -29,3 +29,8 @@ export enum TIMESCALE_ENUM {
 }
 // datetime, open, high, low, close
 type HISTORICAL_DATA_FORMAT_TYPE = [string, number, number, number, number]
+
+export enum PERCENTAGE_TYPE_ENUM {
+    INCREASE = 'increase',
+    DECREASE = 'decrease'
+}
