@@ -42,43 +42,9 @@ export function rootReducer(storeState=initialStoreState, dispatch){
             return Object.assign({}, storeState, {technicalIndicator: dispatch.payload})
 
         case SET_TIMESCALE:
-            const data = storeState.historicalData[dispatch.payload] || null
-            console.log(data)
             switch (dispatch.payload){
-                case TIMESCALE_ENUM.DAY:
-                    return Object.assign({}, storeState,
-                        {
-                            data: data,
-                            timescale: dispatch.payload,
-                            updateScale: "Every minute"})
-
-                case TIMESCALE_ENUM.WEEK:
-                    return Object.assign({}, storeState,
-                        {
-                            data: data,
-                            timescale: dispatch.payload,
-                            updateScale: "Daily"
-                        })
-                case TIMESCALE_ENUM.MONTH:
-                    return Object.assign({}, storeState,
-                        {
-                            data: data,
-                            timescale: dispatch.payload,
-                            updateScale: "Daily"
-                        })
-                case TIMESCALE_ENUM.YEAR:
-                    return Object.assign({}, storeState,
-                        {
-                            data: data,
-                            timescale: dispatch.payload,
-                            updateScale: "Daily"})
                 default:
-                    return Object.assign({}, storeState,
-                        {
-                            data: initialStoreState.historicalData[TIMESCALE_ENUM.DAY],
-                            timeScale: TIMESCALE_ENUM.DAY,
-                            updateScale: "Every minute"
-                        })
+                    return Object.assign({}, storeState, {timescale: dispatch.payload})
             }
 
         case SET_INTRADAY_WEBSOCKET:

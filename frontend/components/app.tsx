@@ -7,6 +7,8 @@ import {useQuery} from "react-query";
 
 import axios from 'axios';
 import {SET_TICKER_OPTIONS} from "../redux/constants";
+import newSidebar from "./dashboard/dashboard";
+import Dashboard from "./dashboard/dashboard";
 
 const App = () => {
     const {addToast} = useToasts()
@@ -29,7 +31,7 @@ const App = () => {
     }
 
     return (
-        <AppLayout />
+        <Dashboard />
     )
 }
 

@@ -1,0 +1,54 @@
+import {useDispatch, useSelector} from "react-redux";
+import {useQuery} from "react-query";
+import {SET_TIMESCALE, TIME_SCALE_VALUES} from "../../../redux/constants";
+import {TIMESCALE_ENUM} from "../../../ts/types";
+import {RootState} from "../../../redux/store";
+
+export default function SelectTimerange() {
+    const timescale = useSelector((store: RootState) => store.timescale)
+    const dispatch = useDispatch()
+
+    function updateTimescale(e){
+        dispatch({
+            type: SET_TIMESCALE,
+            payload: e.target.value
+        })
+    }
+
+    return (
+        <span className="relative z-0 inline-flex shadow-sm rounded-md">
+      <button
+          onClick={(e) => updateTimescale(e)}
+          value={TIMESCALE_ENUM.DAY}
+          type="button"
+          className="relative inline-flex items-center px-4 py-2 rounded-l-md border text-sm text-white font-medium text-gray-700 focus:bg-gray-600 hover:bg-gray-700 focus:z-10 focus:outline-none"
+      >
+        {TIMESCALE_ENUM.DAY}
+      </button>
+      <button
+          onClick={(e) => updateTimescale(e)}
+          value={TIMESCALE_ENUM.MONTH}
+          type="button"
+          className="-ml-px relative inline-flex items-center px-4 py-2 border text-sm text-white font-medium text-gray-700 focus:bg-gray-600 hover:bg-gray-700 focus:z-10 focus:outline-none"
+      >
+          {TIMESCALE_ENUM.MONTH}
+      </button>
+            <button
+                onClick={(e) => updateTimescale(e)}
+                value={TIMESCALE_ENUM.SIX_MONTHS}
+                type="button"
+                className="-ml-px relative inline-flex items-center px-4 py-2 border text-sm text-white font-medium text-gray-700 focus:bg-gray-600 hover:bg-gray-700 focus:z-10 focus:outline-none"
+            >
+          {TIMESCALE_ENUM.SIX_MONTHS}
+      </button>
+      <button
+          onClick={(e) => updateTimescale(e)}
+          value={TIMESCALE_ENUM.YEAR}
+          type="button"
+          className="-ml-px relative inline-flex items-center px-4 py-2 rounded-r-md border text-sm font-medium text-white focus:bg-gray-600 hover:bg-gray-700 hover:text-black focus:z-10 focus:outline-none"
+      >
+          {TIMESCALE_ENUM.YEAR}
+      </button>
+    </span>
+    )
+}
