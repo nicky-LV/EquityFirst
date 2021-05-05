@@ -21,7 +21,7 @@ export default function SelectTimerange() {
           onClick={(e) => updateTimescale(e)}
           value={TIMESCALE_ENUM.DAY}
           type="button"
-          className="relative inline-flex items-center px-4 py-2 rounded-l-md border text-sm text-white font-medium text-gray-700 focus:bg-gray-600 hover:bg-gray-700 focus:z-10 focus:outline-none"
+          className="relative inline-flex items-center px-4 py-2 rounded-l-md border text-sm text-white font-medium text-gray-700 focus:bg-gray-900 hover:bg-gray-900 focus:z-10 focus:outline-none"
       >
         {TIMESCALE_ENUM.DAY}
       </button>
@@ -29,7 +29,7 @@ export default function SelectTimerange() {
           onClick={(e) => updateTimescale(e)}
           value={TIMESCALE_ENUM.MONTH}
           type="button"
-          className="-ml-px relative inline-flex items-center px-4 py-2 border text-sm text-white font-medium text-gray-700 focus:bg-gray-600 hover:bg-gray-700 focus:z-10 focus:outline-none"
+          className="-ml-px relative inline-flex items-center px-4 py-2 border text-sm text-white font-medium text-gray-700 focus:bg-gray-900 hover:bg-gray-900 focus:z-10 focus:outline-none"
       >
           {TIMESCALE_ENUM.MONTH}
       </button>
@@ -37,7 +37,7 @@ export default function SelectTimerange() {
                 onClick={(e) => updateTimescale(e)}
                 value={TIMESCALE_ENUM.SIX_MONTHS}
                 type="button"
-                className="-ml-px relative inline-flex items-center px-4 py-2 border text-sm text-white font-medium text-gray-700 focus:bg-gray-600 hover:bg-gray-700 focus:z-10 focus:outline-none"
+                className="-ml-px relative inline-flex items-center px-4 py-2 border text-sm text-white font-medium text-gray-700 focus:bg-gray-900 hover:bg-gray-900 focus:z-10 focus:outline-none"
             >
           {TIMESCALE_ENUM.SIX_MONTHS}
       </button>
@@ -45,7 +45,7 @@ export default function SelectTimerange() {
           onClick={(e) => updateTimescale(e)}
           value={TIMESCALE_ENUM.YEAR}
           type="button"
-          className="-ml-px relative inline-flex items-center px-4 py-2 rounded-r-md border text-sm font-medium text-white focus:bg-gray-600 hover:bg-gray-700 hover:text-black focus:z-10 focus:outline-none"
+          className="-ml-px relative inline-flex items-center px-4 py-2 rounded-r-md border text-sm font-medium text-white focus:bg-gray-900 hover:bg-gray-900 hover:text-black focus:z-10 focus:outline-none"
       >
           {TIMESCALE_ENUM.YEAR}
       </button>

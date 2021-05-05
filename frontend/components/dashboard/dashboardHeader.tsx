@@ -8,7 +8,6 @@ export default function DashboardHeader(){
                 <div className="w-25">
                     <SelectEquity />
                 </div>
-                <SelectTimerange />
             </div>
     )
 }

@@ -1,25 +1,28 @@
 import {useSelector} from "react-redux";
 import {RootState} from "../../redux/store";
-import {Stat, StatArrow, StatGroup, StatHelpText, StatLabel, StatNumber} from "@chakra-ui/react";
-import {useEffect, useState} from "react";
+import { ArrowSmDownIcon, ArrowSmUpIcon } from '@heroicons/react/solid'
+import {useEffect, useState, useRef} from "react";
 import {useQuery} from "react-query";
 import {getClosePrice} from "../../pages/api/getClosePrice";
 
 import {PERCENTAGE_TYPE_ENUM} from "../../ts/types";
 
 const EquityPrice = () => {
-    const [price, updatePrice] = useState(0);
+    const [price, updatePrice] = useState<number | null>(null);
     const [type, setPercentageType] = useState<PERCENTAGE_TYPE_ENUM | null>(null);
-    const equity = useSelector((store: RootState) => store.selectedEquity)
+    const [loaded, setLoaded] = useState(false);
 
-    const remaining_time = remaining_seconds_today()
-    const request = useQuery('get-close-price', () => getClosePrice(equity), {cacheTime: remaining_time})
+    const equity = useSelector((store: RootState) => store.selectedEquity)
+    const request = useQuery('get-close-price', () => getClosePrice(equity))
+    const priceRef = useRef()
 
     useEffect(() => {
         const ws = new WebSocket(`ws://127.0.0.1:8000/realtime-price/${equity}/`)
         ws.onmessage = (data) => {
-            updatePrice(data.data)
+            updatePrice(parseFloat(data.data))
         }
+
+        setLoaded(true);
     }, [])
 
     let percentage: number
@@ -37,26 +40,28 @@ const EquityPrice = () => {
 
     return (
         <div>
-            <StatGroup>
-                <Stat>
-                    <StatLabel>{equity}</StatLabel>
-                    <StatNumber>$ {price}</StatNumber>
-                    <StatHelpText>
-                        <StatArrow type={increaseType} />
-                        {percentage.toFixed(2)}% {type} today
-                    </StatHelpText>
-                </Stat>
-            </StatGroup>
+            <div className="mx-4 overflow-hidden sm:p-6">
+                <p className="text-sm font-medium text-white truncate">{equity}</p>
+                <div className="flex flex-column justify-content-start">
+                    <p ref={priceRef} className="mt-1 text-3xl font-semibold text-white">$ {price && price.toFixed(2)}</p>
+                    <div className="percentage-icon">
+                        {increaseType === PERCENTAGE_TYPE_ENUM.INCREASE ?
+                            <div className="flex flex-row align-items-center">
+                                <ArrowSmUpIcon
+                            className="-ml-1 mr-0.5 flex-shrink-0 self-center h-5 w-5 text-green-500"
+                            aria-hidden="true"
+                        />
+                                <p className="text-sm text-green-500 ml-0.5">{percentage.toFixed(2)}%<span className="text-gray-200"> above close</span> </p>
+                            </div>: <ArrowSmDownIcon
+                            className="-ml-1 mr-0.5 flex-shrink-0 self-center h-5 w-5 text-red-500"
+                            aria-hidden="true"
+                        >{percentage}</ArrowSmDownIcon>}
+                    </div>
+                </div>
+
+            </div>
         </div>
     )
-}
-
-const remaining_seconds_today = () : number => {
-    const now = new Date()
-    const seconds_in_day = 86400
-    const seconds_elapsed_today = (now.getHours() * (60**2)) + (now.getMinutes() * 60) + (now.getSeconds())
-
-    return seconds_in_day - seconds_elapsed_today
 }
 
 export default EquityPrice

@@ -2,22 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-.top-button{
-  border-radius: 5px 5px 0 0 !important;
-}
-
-.middle-button{
-  border-radius: 0 !important;
-}
-
-.bottom-button{
-  border-radius: 0 0 5px 5px !important;
-}
-
-.card-padded-content{
-  padding: 1rem;
-}
-
-.card{
-  padding: 1.5rem;
+@media(min-width: 640px)  {
+    .logo-section {
+        height: 110px;
+    }
 }
