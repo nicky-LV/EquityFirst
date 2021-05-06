@@ -9,15 +9,19 @@ from Equity.constants.equity_symbols import equity_symbols
 from Redis.classes import Redis
 
 from Equity.constants.timerange import timeranges
+from Equity.exceptions import TimeRangeRequired, InvalidTimeRange
+
+import asyncio
 
 
 @lru_cache
-def ticker_is_valid(ticker):
-    if ticker.upper() in equity_symbols:
-        return True
+def is_valid_equity(equity_symbol):
+    try:
+        if equity_symbol.upper() in equity_symbols:
+            return True
 
-    else:
-        raise AssertionError("Ticker is not valid")
+    except AttributeError:
+        raise AttributeError("The equity symbol must be a string.")
 
 
 def compare_dates(date):
@@ -38,15 +42,16 @@ def compare_dates(date):
 
 class Base:
     def __init__(self, equity):
-        if ticker_is_valid(equity):
+        if is_valid_equity(equity):
             self.equity = equity.upper()
 
         self.db = Redis()
-        self.IEX_token = settings.IEXCLOUD_TOKEN
+        self.IEX_TOKEN = settings.IEXCLOUD_TOKEN
+        self.sort_by_date = lambda date_str: datetime.datetime.strptime(date_str, "%Y-%m-%d")
 
     @property
-    def get_price(self):
-        price = float(requests.get(f"https://cloud.iexapis.com/stable/stock/{self.equity}/price/?token={settings.IEXCLOUD_TOKEN}").json())
+    def price(self):
+        price = float(requests.get(f"https://cloud.iexapis.com/stable/stock/{self.equity}/price/?token={self.IEX_TOKEN}").json())
         return price
 
     @property
@@ -55,7 +60,7 @@ class Base:
         Returns closing information (close price, timestamp) for a specified equity symbol.
         :return: dict {'close': float, 'timestamp' int}
         """
-        return json.loads(self.db.get(key=f"{self.equity}-close"))
+        return self.db.get(key=f"{self.equity}-close")
 
 
 class EquityData(Base):
@@ -70,7 +75,7 @@ class EquityData(Base):
         :return: dict - {date: [open, high, low, close], ...}
         """
         historic_data = requests.get(
-            f"https://cloud.iexapis.com/stable/stock/{self.equity}/chart/{time_range}/?token={self.IEX_token}").json()
+            f"https://cloud.iexapis.com/stable/stock/{self.equity}/chart/{time_range}/?token={self.IEX_TOKEN}").json()
 
         historic_data_parsed = {
             data['date']:  [
@@ -123,7 +128,7 @@ class EquityData(Base):
     # saves and returns intraday data.
     def set_intraday_data(self):
         intraday_data = requests.get(
-            f"https://cloud.iexapis.com/stable/stock/{self.equity}/intraday-prices/?token={self.IEX_token}").json()
+            f"https://cloud.iexapis.com/stable/stock/{self.equity}/intraday-prices/?token={self.IEX_TOKEN}").json()
 
         # intraday data is parsed into dict format with keys [minute, open, high, low, close]
 
@@ -154,7 +159,7 @@ class EquityData(Base):
         previous_day_saved = json.loads(self.db.get(key=self.equity))[-1]['date']
         if compare_dates(previous_day_saved):
             previous_day_data = requests.get(
-                f"https://cloud.iexapis.com/stable/stock/{self.equity}/previous/?token={self.IEX_token}").json()
+                f"https://cloud.iexapis.com/stable/stock/{self.equity}/previous/?token={self.IEX_TOKEN}").json()
 
             previous_day_data_parsed = {
                 'date': previous_day_data['date'],
@@ -178,6 +183,9 @@ class EquityData(Base):
 
 
 class EquityMovingAvg(Base):
+    """
+    EquityMovingAvg is a separate class as it can encapsulate both the SMA and EMA indicators.
+    """
     def __init__(self, equity: str, time_range: str, exponential: bool):
         super().__init__(equity=equity)
 
@@ -185,16 +193,21 @@ class EquityMovingAvg(Base):
         if time_range in timeranges:
             self.time_range = time_range
         else:
-            raise ValueError("Invalid time-range specified.")
+            if time_range is None:
+                raise TimeRangeRequired("A time range must be specified.")
+
+            else:
+                raise InvalidTimeRange("Passed time_range parameter is not a valid time range.")
 
         # String representation of indicator
         self.moving_average_indicator = "sma" if not exponential else "ema"
 
     @property
-    def moving_average(self):
+    def moving_average(self) -> dict:
+        """Returns cached moving_averages in format {date: "%Y-%m-%d", "sma"/"ema": float}"""
         return self.db.get(key=f"{self.equity}-{self.moving_average_indicator}")
 
-    def set_moving_average(self):
+    def set_moving_average(self) -> None:
         """
         Caches the moving average (simple or exponential) into database.
         """
@@ -206,7 +219,7 @@ class EquityMovingAvg(Base):
         except KeyError:
             pass
 
-        data = self.calculate_moving_avg()
+        data = self.get_moving_avg()
 
         # Apply data to available_data
         for date, ma in data.items():
@@ -215,25 +228,87 @@ class EquityMovingAvg(Base):
                 available_data[date] = ma
 
         # Sorts into ascending order (by date).
-        sort_by_date = lambda date_str: datetime.datetime.strptime(date_str, "%Y-%m-%d")
-        available_data = {key: available_data[key] for key in sorted(available_data, key=sort_by_date)}
+
+        available_data = {key: available_data[key] for key in sorted(available_data, key=self.sort_by_date)}
 
         # Cached to Redis database.
         self.db.set(key=f"{self.equity}-{self.moving_average_indicator}", value=json.dumps(available_data), permanent=True)
 
-    def calculate_moving_avg(self):
+    def get_moving_avg(self) -> dict:
         """
         Returns the moving average (simple or exponential) sorted in ascending order.
-        :return: array - {"%Y-%m-%d": moving_average float, ...}
+        :return: dict - {"%Y-%m-%d": moving_average float, ...}
         """
         parsed_data = {}
-        data = requests.get(f"https://cloud.iexapis.com/stable/stock/{self.equity}/indicator/{self.moving_average_indicator}?range={self.time_range}&token={settings.IEXCLOUD_TOKEN}").json()
+        data = requests.get(f"https://cloud.iexapis.com/stable/stock/{self.equity}/indicator/{self.moving_average_indicator}?range={self.time_range}&token={self.IEX_TOKEN}").json()
 
         ma, chart = data
 
         for index, ma in enumerate(reversed(data[ma][0])):
             if ma is not None:
-                parsed_data[data[chart][index]["date"]] = ma
+                parsed_data[data[chart][index]["date"]] = float(ma)
 
         return parsed_data
+
+
+class EquityIndicators(Base):
+    def __init__(self, equity: str, time_range: str):
+        super().__init__(equity=equity)
+
+        # Verifies that specified time_range is valid
+        if time_range in timeranges:
+            self.time_range = time_range
+        else:
+            if time_range is None:
+                raise TimeRangeRequired("A time range must be specified.")
+
+            else:
+                raise InvalidTimeRange("Passed time_range parameter is not a valid time range.")
+
+    @property
+    def bbands(self) -> list:
+        """Returns cached of bbands data in format [{date: "%Y-%m-%d, upper: float, middle: float, lower: float}, {...}]"""
+        return self.db.get(key=f"{self.equity}-bbands")
+
+    def set_bbands(self) -> None:
+        """Caches bbands data (in the format returned by self.get_bands())"""
+        self.db.set(key=f"{self.equity}-bbands", value=json.dumps(self.get_bbands()), permanent=True)
+
+    def get_bbands(self) -> list:
+        """Returns bbands data in ascending order, in the format [{date: "%Y-%m-%d, upper: float, middle: float, lower: float}, {...}]
+        where "upper", "middle" and "lower" refer to the upper, middle, and lower bollinger bands.
+        """
+        # input1 is the period in days. Default is 15 days.
+        input1 = 15
+        # input2 is the number of std. deviations. Default is 2.
+        input2 = 2
+
+        parsed_data = []
+        data = requests.get(f"https://cloud.iexapis.com/stable/stock/{self.equity}/indicator/bbands?range={self.time_range}&input1={input1}&input2={input2}&token={self.IEX_TOKEN}").json()
+
+        indicator_key, chart_key = data.keys()
+
+        lower, middle, upper = data[indicator_key]
+        chart = data[chart_key]
+
+        for index, bband in enumerate(lower):
+            if bband is not None:
+                date = chart[index]['date']
+                parsed_data.append({
+                    'date': date,
+                    'lower': bband,
+                    'middle': middle[index],
+                    'upper': upper[index]
+                })
+
+        # parsed_data contains dicts which are in ascending order.
+        return parsed_data
+
+
+
+
+
+
+
+
 

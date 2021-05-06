@@ -56,6 +56,7 @@ class Redis:
             self.db.set(name=key, value=value)
 
         else:
+            # remaining_time is the number of seconds until EOD (end-of-day).
             time = remaining_time()
             self.db.setex(key, time, value)
 
