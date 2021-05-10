@@ -7,5 +7,5 @@ urlpatterns = [
     path('get-technical-indicators/', get_technical_indicators, name='get-technical-indicators'),
     path('get-historical-data/<str:equity>/', get_historical_data, name='historical-data'),
     path('get-close-data/<str:equity>/', get_close_price, name='get-close-price'),
-    path('SMA/<str:equity_symbol>/<str:requested_timeframe>/', simple_moving_average, name='sma')
+    path('technical/<str:equity_symbol>/<str:moving_avg>/<str:timescale>/', MovingAverage.as_view(), name='ma')
 ]

@@ -16,6 +16,7 @@ def get_tickers(request):
 
 @api_view(["GET"])
 def get_technical_indicators(request):
+    # todo: return technical indicators as {name: "", description: ""}
     return Response(data=indicator_list, status=status.HTTP_200_OK)
 
 

@@ -8,6 +8,7 @@ import requests
 import functools
 
 from Equity.constants.market_times import check_market_open
+from Equity.classes import Base
 
 
 class RealtimePriceConsumer(AsyncJsonWebsocketConsumer):
@@ -33,15 +34,25 @@ class RealtimePriceConsumer(AsyncJsonWebsocketConsumer):
         price = requests.get(f"https://cloud.iexapis.com/stable/stock/{self.equity}/price/?token={settings.IEXCLOUD_TOKEN}").json()
         await self.send_json(content=price)
 
+    async def receive_json(self, content, **kwargs):
+        # Client has changed their selected equity.
+        if content['type'] == "CHANGE_EQUITY":
+            # Updates selected equity of channel.
+            self.equity = content['equity']
+            # Updates price shown to client.
+            await self.update_price({
+                'text': Base(content['equity']).price
+            })
+
     async def disconnect(self, code):
         await database_sync_to_async(self.channel.delete)()
         await self.close()
 
     async def update_price(self, data):
         # Checks if market is open (thus a price update is available)
-        if check_market_open() is True:
-            price = data['text']
-            await self.send_json(content=price)
+        price = data['text']
+        await self.send_json(content=price)
+
 
     def get_channel(self):
         """
@@ -64,8 +75,9 @@ class RealtimePriceConsumer(AsyncJsonWebsocketConsumer):
         # Retrieves channel for the client
         self.channel, created = await database_sync_to_async(self.get_channel)()
 
+        # todo: check if channel is assigned to group. If so, delete the entry.
+
         # Assigns group to channel
         self.channel.group = self.group
-
         # Saves entry within database
         await database_sync_to_async(self.channel.save)()

@@ -1,17 +1,14 @@
 import requests
 import json
-import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 from functools import lru_cache
 
 from django.conf import settings
-from Equity.constants.equity_symbols import equity_symbols
 from Redis.classes import Redis
 
-from Equity.constants.timerange import timeranges
-from Equity.exceptions import TimeRangeRequired, InvalidTimeRange
-
-import asyncio
+from Equity.utils import timescale_is_valid
+from Equity.constants import equity_symbols, timescales
+from Equity.exceptions import *
 
 
 @lru_cache
@@ -25,11 +22,11 @@ def is_valid_equity(equity_symbol):
 
 
 def compare_dates(date):
-    current_date = datetime.datetime.now()
+    current_date = datetime.now()
     passed_data = date.split('-')
     try:
         passed_year, passed_month, passed_day = passed_data[0], passed_data[1], passed_data[2]
-        compare_date = datetime.datetime(year=int(passed_year), month=int(passed_month), day=int(passed_day))
+        compare_date = datetime(year=int(passed_year), month=int(passed_month), day=int(passed_day))
         if (current_date - compare_date).days == 1:
             return True
 
@@ -47,7 +44,7 @@ class Base:
 
         self.db = Redis()
         self.IEX_TOKEN = settings.IEXCLOUD_TOKEN
-        self.sort_by_date = lambda date_str: datetime.datetime.strptime(date_str, "%Y-%m-%d")
+        self.sort_by_date = lambda date_str: datetime.strptime(date_str, "%Y-%m-%d")
 
     @property
     def price(self):
@@ -186,33 +183,30 @@ class EquityMovingAvg(Base):
     """
     EquityMovingAvg is a separate class as it can encapsulate both the SMA and EMA indicators.
     """
-    def __init__(self, equity: str, time_range: str, exponential: bool):
+    def __init__(self, equity: str, timescale: str, exponential: bool):
         super().__init__(equity=equity)
 
-        # Verifies that specified time_range is valid
-        if time_range in timeranges:
-            self.time_range = time_range
-        else:
-            if time_range is None:
-                raise TimeRangeRequired("A time range must be specified.")
-
-            else:
-                raise InvalidTimeRange("Passed time_range parameter is not a valid time range.")
+        if timescale_is_valid(timescale=timescale):
+            self.timescale = timescale
 
         # String representation of indicator
-        self.moving_average_indicator = "sma" if not exponential else "ema"
+        self.moving_average_indicator: str = "SMA" if not exponential else "EMA"
 
     @property
-    def moving_average(self) -> dict:
+    def moving_average(self) -> list:
         """Returns cached moving_averages in format {date: "%Y-%m-%d", "sma"/"ema": float}"""
-        return self.db.get(key=f"{self.equity}-{self.moving_average_indicator}")
+        data = self.db.get(key=f"{self.equity}-{self.moving_average_indicator}")
+        if self.timescale == "ytd":
+            return data
+
+        return self.parse_moving_average(data, self.timescale)
 
     def set_moving_average(self) -> None:
         """
         Caches the moving average (simple or exponential) into database.
         """
 
-        available_data = {}
+        available_data = []
         try:
             available_data = self.db.get(f"{self.equity}-{self.moving_average_indicator}")
 
@@ -222,52 +216,78 @@ class EquityMovingAvg(Base):
         data = self.get_moving_avg()
 
         # Apply data to available_data
-        for date, ma in data.items():
+        for ma_dict in data:
+            date = ma_dict['date']
+            ma = ma_dict[self.moving_average_indicator]
             # Ensures we do not handle duplicate data
             if date not in available_data:
-                available_data[date] = ma
-
-        # Sorts into ascending order (by date).
-
-        available_data = {key: available_data[key] for key in sorted(available_data, key=self.sort_by_date)}
+                available_data.append({
+                    "date": date,
+                    self.moving_average_indicator: ma
+                })
 
         # Cached to Redis database.
         self.db.set(key=f"{self.equity}-{self.moving_average_indicator}", value=json.dumps(available_data), permanent=True)
 
-    def get_moving_avg(self) -> dict:
+    def get_moving_avg(self) -> list:
         """
         Returns the moving average (simple or exponential) sorted in ascending order.
-        :return: dict - {"%Y-%m-%d": moving_average float, ...}
+        :return: list - [{"date": "%Y-%m-%d", "sma/ema": float, ...}]
         """
-        parsed_data = {}
-        data = requests.get(f"https://cloud.iexapis.com/stable/stock/{self.equity}/indicator/{self.moving_average_indicator}?range={self.time_range}&token={self.IEX_TOKEN}").json()
+        parsed_data = []
+        data = requests.get(f"https://cloud.iexapis.com/stable/stock/{self.equity}/indicator/{self.moving_average_indicator}?range={self.timescale}&token={self.IEX_TOKEN}").json()
 
         ma, chart = data
 
         for index, ma in enumerate(reversed(data[ma][0])):
             if ma is not None:
-                parsed_data[data[chart][index]["date"]] = float(ma)
+                parsed_data.append({
+                    "date": data[chart][index]["date"],
+                    self.moving_average_indicator: float(ma)
+                })
 
         return parsed_data
 
+    @staticmethod
+    def parse_moving_average(equity_ma, timescale):
+        """ Parses a moving average, returning data in ascending order for a specified timescale. """
+        parsed_ma = []
+        end_date = datetime.now() - timedelta(days=timescales[timescale])
+        for i in range(len(equity_ma) - 1, -1, -1):
+            try:
+                ma = equity_ma[i]
+                # If the date of the MA calculation is outside of the date range, it is ignored.
+                if datetime.strptime(ma['date'], "%Y-%m-%d") >= end_date:
+                    parsed_ma.append(ma)
+
+                else:
+                    break
+
+            except IndexError:
+                raise MissingMAData
+
+        return parsed_ma
+
 
 class EquityIndicators(Base):
-    def __init__(self, equity: str, time_range: str):
+    def __init__(self, equity: str, timescale: str):
         super().__init__(equity=equity)
 
         # Verifies that specified time_range is valid
-        if time_range in timeranges:
-            self.time_range = time_range
+        if timescale in timescales:
+            self.time_range = timescale
         else:
-            if time_range is None:
+            if timescale is None:
                 raise TimeRangeRequired("A time range must be specified.")
 
             else:
-                raise InvalidTimeRange("Passed time_range parameter is not a valid time range.")
+                raise InvalidTimescale("Passed time_range parameter is not a valid time range.")
 
     @property
     def bbands(self) -> list:
-        """Returns cached of bbands data in format [{date: "%Y-%m-%d, upper: float, middle: float, lower: float}, {...}]"""
+        """
+        Returns cached of bbands data in format [{date: "%Y-%m-%d, upper: float, middle: float, lower: float}, {...}]
+        """
         return self.db.get(key=f"{self.equity}-bbands")
 
     def set_bbands(self) -> None:
@@ -275,7 +295,14 @@ class EquityIndicators(Base):
         self.db.set(key=f"{self.equity}-bbands", value=json.dumps(self.get_bbands()), permanent=True)
 
     def get_bbands(self) -> list:
-        """Returns bbands data in ascending order, in the format [{date: "%Y-%m-%d, upper: float, middle: float, lower: float}, {...}]
+        """
+        Returns bbands data in ascending order, in the format
+        [{
+        date: "%Y-%m-%d,
+        upper: float,
+        middle: float,
+        lower: float},
+        {...}]
         where "upper", "middle" and "lower" refer to the upper, middle, and lower bollinger bands.
         """
         # input1 is the period in days. Default is 15 days.

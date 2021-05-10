@@ -2,5 +2,17 @@ class TimeRangeRequired(Exception):
     pass
 
 
-class InvalidTimeRange(Exception):
+class InvalidTimescale(Exception):
+    pass
+
+
+class MissingMAData(Exception):
+    pass
+
+
+class InvalidEquity(Exception):
+    pass
+
+
+class InvalidMovingAvgType(Exception):
     pass

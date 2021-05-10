@@ -12,7 +12,7 @@ def update_equity_price():
     for symbol in equity_symbols:
         # Retrieve price for equity
         equity = EquityData(str(symbol))
-        price = equity.get_price()
+        price = equity.price
 
         # Update channel layer groups with name: (symbol)-price
         async_to_sync(channel_layer.group_send)(f"{symbol}-price", {
