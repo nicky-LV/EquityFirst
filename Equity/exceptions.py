@@ -16,3 +16,7 @@ class InvalidEquity(Exception):
 
 class InvalidMovingAvgType(Exception):
     pass
+
+
+class MissingPriceData(Exception):
+    pass

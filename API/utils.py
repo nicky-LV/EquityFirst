@@ -1,5 +1,3 @@
-from datetime import datetime, timedelta
-
 from rest_framework.validators import ValidationError
 
 from Equity.utils import equity_is_valid, timescale_is_valid, ma_type_is_valid
@@ -35,14 +33,3 @@ def serializer_ma_type_is_valid(ma_type: str):
 
     except InvalidMovingAvgType:
         raise ValidationError("Invalid Moving Average Type. It must be either SMA or MA.")
-
-
-def validated_data_required(func):
-    def func_wrapper(class_instance, *args):
-        if class_instance.is_valid():
-            return func(class_instance, *args)
-
-        else:
-            raise ValidationError("Validated data is required to calculate moving averages.")
-
-    return func_wrapper

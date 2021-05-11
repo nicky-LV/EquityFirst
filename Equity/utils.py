@@ -1,11 +1,14 @@
-import datetime
+from datetime import datetime
+import requests
+from django.conf import settings
+
 from .constants import equity_symbols, timescales, ma_types
 from .exceptions import *
 
 
 def market_is_open():
     """ Market is open Mon-Fri, 4:30AM - 8PM """
-    now = datetime.datetime.now()
+    now = datetime.now()
     open_ = False
     # Weekdays (monday-friday)
     if 1 <= now.isoweekday() <= 5:
@@ -44,3 +47,22 @@ def is_exponential(ma_type: str):
         return True
     return False
 
+
+def get_price(equity):
+    if equity_is_valid(equity):
+        return requests.get(f"https://cloud.iexapis.com/stable/stock/{equity}/price?token={settings.IEXCLOUD_TOKEN}") \
+            .json()
+
+
+def get_closing_price(equity):
+    """ [GET] Requests the closing price for a specified equity.
+    :param equity: str - The equity you want the closing price for.
+    :return: dict - Returns a dictionary with keys: "close" & "timestamp"
+    {"close": float, "timestamp": int}
+    """
+    if equity_is_valid(equity):
+        close = requests.get(
+            f"https://cloud.iexapis.com/stable/stock/{equity}/quote/close/?token={settings.IEXCLOUD_TOKEN}").json()
+        timestamp = datetime.now().timestamp()
+
+        return {"close": close, "timestamp": timestamp}

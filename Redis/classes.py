@@ -53,12 +53,12 @@ class Redis:
     # default expiry date for each key is until END OF DAY
     def set(self, key, value, permanent=False):
         if permanent:
-            self.db.set(name=key, value=value)
+            self.db.set(name=key, value=json.dumps(value))
 
         else:
             # remaining_time is the number of seconds until EOD (end-of-day).
             time = remaining_time()
-            self.db.setex(key, time, value)
+            self.db.setex(key, time, json.dumps(value))
 
     def delete(self, *keys, all_keys=False):
         if all_keys:

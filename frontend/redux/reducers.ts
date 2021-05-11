@@ -1,28 +1,5 @@
-import {SET_TICKER_OPTIONS, SET_SELECTED_EQUITY, SET_TECHNICAL_INDICATOR, SET_TIMESCALE, SET_INTRADAY_WEBSOCKET, SET_HISTORICAL_DATA, SET_INTRADAY_DATA} from "./constants";
-import {TIMESCALE_ENUM} from "../ts/types";
-
-interface intialStoreStateType {
-    tickerOptions: string[] | [],
-    selectedEquity: string,
-    technicalIndicator: string | null,
-    timescale: string,
-    updateScale: string,
-    intradayWebsocket: WebSocket | null,
-    historicalData: any,
-    data: any,
-    intradayData: any
-}
-const initialStoreState: intialStoreStateType = {
-    tickerOptions: [],
-    selectedEquity: "MSFT",
-    technicalIndicator: "SMA",
-    timescale: TIMESCALE_ENUM.DAY,
-    updateScale: "Every minute",
-    intradayWebsocket: null,
-    historicalData: null,
-    data: null,
-    intradayData: null
-}
+import {SET_TICKER_OPTIONS, SET_SELECTED_EQUITY, SET_TECHNICAL_INDICATOR, SET_TIMESCALE, SET_HISTORICAL_DATA, SET_REALTIME_WS} from "./constants";
+import {TIMESCALE} from "../ts/types";
 
 export function rootReducer(storeState=initialStoreState, dispatch){
     switch (dispatch.type) {
@@ -30,8 +7,14 @@ export function rootReducer(storeState=initialStoreState, dispatch){
             return Object.assign({}, storeState, {tickerOptions: dispatch.payload})
 
         case SET_SELECTED_EQUITY:
-            if (dispatch.payload === ""){
-                return Object.assign({}, storeState)
+            // Checks if realtime data websocket is established.
+            // If so, we must tell the server to track the price of the new equity.
+            if(storeState.realtimeWS) {
+                storeState.realtimeWS.send(JSON.stringify({
+                    type: REALTIME_WS_ENUM.CHANGE_EQUITY,
+                    equity: dispatch.payload
+                }))
+                return Object.assign({}, storeState, {selectedEquity: dispatch.payload})
             }
 
             else{
@@ -47,8 +30,8 @@ export function rootReducer(storeState=initialStoreState, dispatch){
                     return Object.assign({}, storeState, {timescale: dispatch.payload})
             }
 
-        case SET_INTRADAY_WEBSOCKET:
-            return Object.assign({}, storeState, {intradayWebsocket: dispatch.payload})
+        case SET_REALTIME_WS:
+            return Object.assign({}, storeState, {realtimeWS: dispatch.payload})
 
         /**
          * Sets the splitted historical data into the redux store.
@@ -59,18 +42,37 @@ export function rootReducer(storeState=initialStoreState, dispatch){
             return Object.assign({}, storeState, {
                 data: dispatch.payload[timescale],
                 historicalData: {
-                    [TIMESCALE_ENUM.DAY]: dispatch.payload[TIMESCALE_ENUM.DAY],
-                    [TIMESCALE_ENUM.WEEK] : dispatch.payload[TIMESCALE_ENUM.WEEK],
-                    [TIMESCALE_ENUM.MONTH] : dispatch.payload[TIMESCALE_ENUM.MONTH],
-                    [TIMESCALE_ENUM.YEAR] : dispatch.payload[TIMESCALE_ENUM.YEAR]
+                    [TIMESCALE.DAY]: dispatch.payload[TIMESCALE.DAY],
+                    [TIMESCALE.WEEK] : dispatch.payload[TIMESCALE.WEEK],
+                    [TIMESCALE.MONTH] : dispatch.payload[TIMESCALE.MONTH],
+                    [TIMESCALE.YEAR] : dispatch.payload[TIMESCALE.YEAR]
                 }
 
             })
 
+        /*
         case SET_INTRADAY_DATA:
             return Object.assign({}, storeState, {intradayData: dispatch.payload})
+        */
 
         default:
             return Object.assign({}, storeState)
     }
+}
+
+interface intialStoreStateType {
+    selectedEquity: string,
+    technicalIndicator: string,
+    timescale: TIMESCALE,
+    realtimeWS: WebSocket | null,
+}
+const initialStoreState: intialStoreStateType = {
+    selectedEquity: "MSFT",
+    technicalIndicator: "SMA",
+    timescale: TIMESCALE.DAY,
+    realtimeWS: null,
+}
+
+enum REALTIME_WS_ENUM {
+    CHANGE_EQUITY = "CHANGE_EQUITY"
 }

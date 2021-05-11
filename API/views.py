@@ -4,14 +4,45 @@ from rest_framework import status
 from rest_framework.exceptions import ValidationError
 
 from .serializers import MovingAverageSerializer
+from Equity.constants import equity_symbols, technical_indicators
+from Equity.classes import EquityData
 
 
 class MovingAverage(APIView):
-    def get(self, request):
-        serializer = MovingAverageSerializer(data=request.data)
+    @staticmethod
+    def get(request, equity, moving_avg, timescale):
+        data = {
+            "equity": equity,
+            "ma_type": moving_avg,
+            "timescale": timescale
+        }
+        serializer = MovingAverageSerializer(data=data)
         if serializer.is_valid():
-            ma_data = serializer.calculate_ma
+            ma_data = serializer.calculate_ma()
             return Response(data=ma_data, status=status.HTTP_200_OK)
 
         else:
             raise ValidationError("Unable to calculate Moving Avg.")
+
+
+class GetEquitySymbols(APIView):
+    def get(self, request):
+        return Response(data=equity_symbols, status=status.HTTP_200_OK)
+
+
+class GetTechnicalIndicators(APIView):
+    def get(self, request):
+        # todo: return technical indicators as {name: "", description: ""}
+        return Response(data=technical_indicators, status=status.HTTP_200_OK)
+
+
+class GetHistoricalData(APIView):
+    def get(self, request, equity):
+        equity_object = EquityData(equity=equity)
+        return Response(data=equity_object.get_historic_data(), status=status.HTTP_200_OK)
+
+
+class GetCloseData(APIView):
+    def get(self, request, equity):
+        close_price = EquityData(equity=equity).close
+        return Response(data=close_price, status=status.HTTP_200_OK)

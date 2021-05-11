@@ -1,7 +1,7 @@
 import {useDispatch, useSelector} from "react-redux";
 import {useQuery} from "react-query";
 import {SET_TIMESCALE, TIME_SCALE_VALUES} from "../../../redux/constants";
-import {TIMESCALE_ENUM} from "../../../ts/types";
+import {TIMESCALE} from "../../../ts/types";
 import {RootState} from "../../../redux/store";
 
 export default function SelectTimerange() {
@@ -19,35 +19,35 @@ export default function SelectTimerange() {
         <span className="relative z-0 inline-flex shadow-sm rounded-md">
       <button
           onClick={(e) => updateTimescale(e)}
-          value={TIMESCALE_ENUM.DAY}
+          value={TIMESCALE.DAY}
           type="button"
           className="relative inline-flex items-center px-4 py-2 rounded-l-md border text-sm text-white font-medium text-gray-700 focus:bg-gray-900 hover:bg-gray-900 focus:z-10 focus:outline-none"
       >
-        {TIMESCALE_ENUM.DAY}
+        {TIMESCALE.DAY}
       </button>
       <button
           onClick={(e) => updateTimescale(e)}
-          value={TIMESCALE_ENUM.MONTH}
+          value={TIMESCALE.MONTH}
           type="button"
           className="-ml-px relative inline-flex items-center px-4 py-2 border text-sm text-white font-medium text-gray-700 focus:bg-gray-900 hover:bg-gray-900 focus:z-10 focus:outline-none"
       >
-          {TIMESCALE_ENUM.MONTH}
+          {TIMESCALE.MONTH}
       </button>
             <button
                 onClick={(e) => updateTimescale(e)}
-                value={TIMESCALE_ENUM.SIX_MONTHS}
+                value={TIMESCALE.SIX_MONTHS}
                 type="button"
                 className="-ml-px relative inline-flex items-center px-4 py-2 border text-sm text-white font-medium text-gray-700 focus:bg-gray-900 hover:bg-gray-900 focus:z-10 focus:outline-none"
             >
-          {TIMESCALE_ENUM.SIX_MONTHS}
+          {TIMESCALE.SIX_MONTHS}
       </button>
       <button
           onClick={(e) => updateTimescale(e)}
-          value={TIMESCALE_ENUM.YEAR}
+          value={TIMESCALE.YEAR}
           type="button"
           className="-ml-px relative inline-flex items-center px-4 py-2 rounded-r-md border text-sm font-medium text-white focus:bg-gray-900 hover:bg-gray-900 hover:text-black focus:z-10 focus:outline-none"
       >
-          {TIMESCALE_ENUM.YEAR}
+          {TIMESCALE.YEAR}
       </button>
     </span>
     )

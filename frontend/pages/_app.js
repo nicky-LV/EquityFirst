@@ -1,8 +1,6 @@
 import '../styles/globals.css'
 import 'tailwindcss/tailwind.css'
-import {ChakraProvider} from "@chakra-ui/react";
 import {QueryClientProvider, QueryClient} from "react-query";
-import chakraTheme from "../styles/chakraTheme";
 import {Provider} from "react-redux";
 import store from "../redux/store";
 import App from "../components/app";
@@ -18,11 +16,9 @@ function MyApp({ Component, pageProps }) {
     return (
         <Provider store={store}>
             <QueryClientProvider client={queryClient}>
-                <ChakraProvider theme={chakraTheme}>
                     <ToastProvider>
                         <App />
                     </ToastProvider>
-                </ChakraProvider>
             </QueryClientProvider>
         </Provider>
     )

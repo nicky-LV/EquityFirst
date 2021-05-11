@@ -1,14 +1,15 @@
 import requests
-import json
 from datetime import datetime, timedelta
 from functools import lru_cache
+from typing import Union
 
 from django.conf import settings
 from Redis.classes import Redis
 
-from Equity.utils import timescale_is_valid
-from Equity.constants import equity_symbols, timescales
-from Equity.exceptions import *
+from .utils import timescale_is_valid
+from .decorators import valid_equity_required
+from .constants import equity_symbols, timescales
+from .exceptions import *
 
 
 @lru_cache
@@ -38,18 +39,23 @@ def compare_dates(date):
 
 
 class Base:
+    @valid_equity_required
     def __init__(self, equity):
-        if is_valid_equity(equity):
-            self.equity = equity.upper()
-
+        self.equity = equity
         self.db = Redis()
         self.IEX_TOKEN = settings.IEXCLOUD_TOKEN
         self.sort_by_date = lambda date_str: datetime.strptime(date_str, "%Y-%m-%d")
 
     @property
     def price(self):
-        price = float(requests.get(f"https://cloud.iexapis.com/stable/stock/{self.equity}/price/?token={self.IEX_TOKEN}").json())
-        return price
+        try:
+            return self.db.get(f"{self.equity}-price")
+        except KeyError:
+            return MissingPriceData(f"Price data for {self.equity} is unavailable.")
+
+    @price.setter
+    def price(self, payload: Union[float, int]):
+        self.db.set(key=f"{self.equity}-price", value=payload, permanent=True)
 
     @property
     def close(self):
@@ -58,6 +64,10 @@ class Base:
         :return: dict {'close': float, 'timestamp' int}
         """
         return self.db.get(key=f"{self.equity}-close")
+
+    @close.setter
+    def close(self, payload: dict):
+        self.db.set(key=f"{self.equity}-close", value=payload, permanent=True)
 
 
 class EquityData(Base):
@@ -85,17 +95,18 @@ class EquityData(Base):
         }
 
         # this historic data must be saved as a string within the redis database (serialize to json)
-        self.db.set(key=self.equity, value=json.dumps(historic_data_parsed), permanent=True)
+        self.db.set(key=self.equity, value=historic_data_parsed, permanent=True)
 
         return historic_data_parsed
 
+    # todo: refactor this method and enable efficient parsing.
     def get_historic_data(self, dict_format=False):
         """
         Retrieve historical data for an equity.
         :return: list - nested list of historical data [[date, open, high, low, close], [...]]
         """
 
-        historic_data = json.loads(self.db.get(key=self.equity))
+        historic_data = self.db.get(key=self.equity)
 
         if dict_format:
             return historic_data
@@ -140,7 +151,7 @@ class EquityData(Base):
             for data in intraday_data
         ]
 
-        self.db.set(key=f"{self.equity}-intraday", value=json.dumps(intraday_data_parsed), permanent=True)
+        self.db.set(key=f"{self.equity}-intraday", value=intraday_data_parsed, permanent=True)
 
         return intraday_data_parsed
 
@@ -149,11 +160,11 @@ class EquityData(Base):
         Retrieve intraday data for an equity.
         :return: list - Nested list of data in format [[date, open, high, low, close], [...]]
         """
-        return json.loads(self.db.get(f"{self.equity}-intraday"))
+        return self.db.get(f"{self.equity}-intraday")
 
     def set_previous_day_data(self):
         # get date from last day saved in redis DB.
-        previous_day_saved = json.loads(self.db.get(key=self.equity))[-1]['date']
+        previous_day_saved = self.db.get(key=self.equity)[-1]['date']
         if compare_dates(previous_day_saved):
             previous_day_data = requests.get(
                 f"https://cloud.iexapis.com/stable/stock/{self.equity}/previous/?token={self.IEX_TOKEN}").json()
@@ -167,7 +178,7 @@ class EquityData(Base):
             }
 
             # retrieve current historical data
-            historical_data = json.loads(self.db.get(key=self.equity))
+            historical_data = self.db.get(key=self.equity)
             historical_data.append(previous_day_data_parsed)
 
             # update the historical data with previous day's data
@@ -227,7 +238,7 @@ class EquityMovingAvg(Base):
                 })
 
         # Cached to Redis database.
-        self.db.set(key=f"{self.equity}-{self.moving_average_indicator}", value=json.dumps(available_data), permanent=True)
+        self.db.set(key=f"{self.equity}-{self.moving_average_indicator}", value=available_data, permanent=True)
 
     def get_moving_avg(self) -> list:
         """
@@ -292,7 +303,7 @@ class EquityIndicators(Base):
 
     def set_bbands(self) -> None:
         """Caches bbands data (in the format returned by self.get_bands())"""
-        self.db.set(key=f"{self.equity}-bbands", value=json.dumps(self.get_bbands()), permanent=True)
+        self.db.set(key=f"{self.equity}-bbands", value=self.get_bbands(), permanent=True)
 
     def get_bbands(self) -> list:
         """

@@ -1,20 +1,18 @@
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from channels.db import database_sync_to_async
-
-from API.models import Channels, Groups
-from django.conf import settings
-
-import requests
 import functools
 
-from Equity.constants.market_times import check_market_open
+from .models import Channels, Groups
+
 from Equity.classes import Base
+from Equity.exceptions import MissingPriceData
 
 
 class RealtimePriceConsumer(AsyncJsonWebsocketConsumer):
     def __init__(self):
         super().__init__()
         self.equity = None
+        self.equity_data = None
         self.group_name = None
         self.group = None
         self.channel = None
@@ -24,24 +22,31 @@ class RealtimePriceConsumer(AsyncJsonWebsocketConsumer):
         Accepts WS connection. Creates a group for this channel and its specific equity.
         """
         self.equity = self.scope['url_route']['kwargs']['equity']
-        # Assign channel to group within database, so we can query it within celery tasks.
+        self.equity_data = Base(equity=self.equity)
+        # Assign channel to group within database, so we can query it within Celery tasks.
         await self.assign_channel_to_group()
         # Add channel to group within channel layer
         await self.channel_layer.group_add(self.group_name, self.channel_name)
         # Accept websocket connection
         await self.accept()
+
         # Send initial price-data
-        price = requests.get(f"https://cloud.iexapis.com/stable/stock/{self.equity}/price/?token={settings.IEXCLOUD_TOKEN}").json()
-        await self.send_json(content=price)
+        try:
+            price = self.equity_data.price
+            await self.send_json(content=price)
+
+        except MissingPriceData:
+            pass
 
     async def receive_json(self, content, **kwargs):
         # Client has changed their selected equity.
         if content['type'] == "CHANGE_EQUITY":
             # Updates selected equity of channel.
             self.equity = content['equity']
+            self.equity_data = Base(equity=self.equity)
             # Updates price shown to client.
             await self.update_price({
-                'text': Base(content['equity']).price
+                'text': self.equity_data.price
             })
 
     async def disconnect(self, code):
@@ -52,7 +57,6 @@ class RealtimePriceConsumer(AsyncJsonWebsocketConsumer):
         # Checks if market is open (thus a price update is available)
         price = data['text']
         await self.send_json(content=price)
-
 
     def get_channel(self):
         """

@@ -1,24 +1,12 @@
-from Equity.classes import *
+import asyncio
+from asgiref.sync import async_to_sync
 from celery import shared_task
 from django.conf import settings
-
-from Equity.constants.equity_symbols import equity_symbols
 from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
 
-
-def populate_historic_data():
-    if settings.COLLECT_HISTORICAL_DATA:
-        for ticker in equity_symbols:
-            equity = EquityData(equity=ticker)
-            # saves an equity's historic data within redis
-            equity.set_historic_data()
-
-    else:
-        print(f"settings.COLLECT_HISTORICAL_DATA is {settings.COLLECT_HISTORICAL_DATA}")
-
-# called at the pre-market open of the next day.
-# this appends an equity's historical data with yesterday's data.
+from .utils import *
+from Equity.classes import *
+from Equity.utils import *
 
 
 @shared_task
@@ -46,3 +34,31 @@ def update_intraday_data():
                 "text": equity.get_intraday_data()
             }
         )
+
+
+@shared_task
+def channels_realtime_price():
+    """
+    Updates the price of all connected clients (channels), providing real-time prices.
+    """
+    for equity in equity_symbols:
+        channels_update_equity_price(equity=equity)
+
+
+@shared_task
+def cache_equity_prices():
+    """
+    Caches prices for each equity.
+    """
+    for equity in equity_symbols:
+        cache_equity_price(equity=equity)
+
+
+def cache_closing_prices():
+    """
+    Caches the closing prices for each equity.
+    """
+    for equity in equity_symbols:
+        close_data = get_closing_price(equity=equity)
+        equity_object = Base(equity=equity)
+        equity_object.close = close_data

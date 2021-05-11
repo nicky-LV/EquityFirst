@@ -2,16 +2,14 @@ import Card from "../cards/graphCard";
 import {useSelector} from "react-redux";
 import {RootState} from "../../../redux/store";
 import GraphCard from "../cards/graphCard";
+import TechnicalAnalysisCard from "../cards/technicalAnalysisCard";
 
 export default function DashboardContent(){
     return(
         <div className="m-5">
-            <div className="flex flex-row justify-content-between">
+            <div className="flex flex-row justify-content-between gap-5">
                 <GraphCard />
-
-                <div className="w-100 h-25">
-
-                </div>
+                <TechnicalAnalysisCard/>
             </div>
 
         </div>
