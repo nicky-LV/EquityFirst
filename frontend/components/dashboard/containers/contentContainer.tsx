@@ -1,6 +1,3 @@
-import Card from "../cards/graphCard";
-import {useSelector} from "react-redux";
-import {RootState} from "../../../redux/store";
 import GraphCard from "../cards/graphCard";
 import TechnicalAnalysisCard from "../cards/technicalAnalysisCard";
 

@@ -4,6 +4,10 @@
 
 @media(min-width: 640px)  {
     .logo-section {
-        height: 110px;
+        height: 94px;
+    }
+
+    .logo {
+        height: 94px;
     }
 }

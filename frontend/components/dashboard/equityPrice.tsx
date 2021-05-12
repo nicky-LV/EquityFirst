@@ -1,22 +1,25 @@
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../../redux/store";
-import { ArrowSmDownIcon, ArrowSmUpIcon } from '@heroicons/react/solid'
-import {useEffect, useState, useRef} from "react";
+import {ArrowSmDownIcon, ArrowSmUpIcon} from '@heroicons/react/solid'
+import {useEffect, useRef, useState} from "react";
 import {useQuery} from "react-query";
 import {getClosePrice} from "../../pages/api/getClosePrice";
 
 import {PERCENTAGE_TYPE} from "../../ts/types";
 import {SET_REALTIME_WS} from "../../redux/constants";
 
+function classNames(...classes){
+    return classes.join(" ")
+}
 const EquityPrice = () => {
     const [price, updatePrice] = useState<number | null>(null);
+    const [width, setWidth] = useState(0);
     const [loaded, setLoaded] = useState(false);
 
     const equity = useSelector((store: RootState) => store.selectedEquity)
 
     const request = useQuery('get-close-price', () => getClosePrice(equity))
     const dispatch = useDispatch()
-    const priceRef = useRef()
 
     useEffect(() => {
         const ws = new WebSocket(`ws://127.0.0.1:8000/realtime-price/${equity}/`)
@@ -25,17 +28,16 @@ const EquityPrice = () => {
             payload: ws
         })
         ws.onmessage = (data) => {
-            console.log(data)
             updatePrice(parseFloat(data.data))
         }
 
         setLoaded(true);
     }, [])
 
-    let percentage: number
+    let percentage: number;
     let increaseType: PERCENTAGE_TYPE;
     if(request.isSuccess){
-        percentage = ((request.data.data.close - price) / request.data.data.close) * 100
+        percentage = (((price - request.data.data.close) / request.data.data.close) * 100)
         if (percentage > 0){
             increaseType = PERCENTAGE_TYPE.INCREASE
         }
@@ -46,27 +48,32 @@ const EquityPrice = () => {
     }
 
     return (
-        <div>
-            <div className="mx-4 overflow-hidden sm:p-6">
-                <p className="text-sm font-medium text-white truncate">{equity}</p>
-                <div className="flex flex-column justify-content-start">
-                    <p ref={priceRef} className="mt-1 text-3xl font-semibold text-white">$ {price && price.toFixed(2)}</p>
-                    <div className="percentage-icon">
+        <div className="mx-4 overflow-hidden sm:p-6">
+            <p className="text-sm font-medium text-white truncate">{equity}</p>
+                <p className="my-1 text-3xl font-semibold text-white">$ {price && price.toFixed(2)}</p>
+                <div className="mt-1 inline-block">
+                    <div className={classNames(increaseType === PERCENTAGE_TYPE.INCREASE ? "bg-green-100" : "bg-red-100", "rounded-full flex flex-grow-0 items-center content-start px-3")}>
                         {increaseType === PERCENTAGE_TYPE.INCREASE ?
-                            <div className="flex flex-row align-items-center">
-                                <ArrowSmUpIcon
-                            className="-ml-1 mr-0.5 flex-shrink-0 self-center h-5 w-5 text-green-500"
-                            aria-hidden="true"
-                        />
-                                <p className="text-sm text-green-500 ml-0.5">{percentage.toFixed(2)}%<span className="text-gray-200"> above close</span> </p>
-                            </div>: <ArrowSmDownIcon
-                            className="-ml-1 mr-0.5 flex-shrink-0 self-center h-5 w-5 text-red-500"
-                            aria-hidden="true"
-                        >{percentage}</ArrowSmDownIcon>}
+                            <ArrowSmUpIcon
+                                className="flex-shrink-0 h-5 w-5 text-green-800"
+                                aria-hidden="true"
+                            />
+
+                            :
+
+                            <ArrowSmDownIcon
+                                className="flex-shrink-0 h-5 w-5 text-red-800"
+                                aria-hidden="true"
+                            />
+
+                        }
+                        {percentage > 0 ?
+                            <p className="text-sm text-green-800 ml-0.5 mb-0">{percentage.toFixed(2)}%</p>
+                            :
+                            <p className="text-sm text-red-800 ml-0.5 mb-0">{(-1 * percentage).toFixed(2)}%</p>
+                        }
                     </div>
                 </div>
-
-            </div>
         </div>
     )
 }

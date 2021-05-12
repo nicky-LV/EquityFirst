@@ -3,7 +3,7 @@ import {ReactJSXElement} from "@emotion/react/types/jsx-namespace";
 
 export default function Card(props : CardProps){
     return (
-        <div className="bg-white flex flex-column border-b border-gray-200 rounded-md h-full w-full">
+        <div className="bg-white flex flex-col border-b border-gray-200 rounded-md h-full w-full">
             <CardHeader header={props.header}>
                 {props.headerContent}
             </CardHeader>
@@ -19,5 +19,4 @@ interface CardProps{
     header: string | ReactJSXElement
     headerContent?: ReactJSXElement
     children?: ReactJSXElement
-
 }
