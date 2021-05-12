@@ -73,7 +73,7 @@ def parse_data(data: list, timescale: str):
     returning data in ascending order for a specified timescale. """
     parsed_data = []
     end_date = datetime.now() - timedelta(days=timescales[timescale])
-    for item in reversed(data):
+    for item in data:
         try:
             date = item['date']
             # If the date of the MA calculation is outside of the date range, it is ignored.
@@ -87,4 +87,4 @@ def parse_data(data: list, timescale: str):
         except IndexError:
             raise MissingData
 
-    return parsed_data
+    return list(reversed(parsed_data))
