@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import requests
 from django.conf import settings
 
@@ -66,3 +66,25 @@ def get_closing_price(equity):
         timestamp = datetime.now().timestamp()
 
         return {"close": close, "timestamp": timestamp}
+
+
+def parse_data(data: list, timescale: str):
+    """ Parses data objects within a list.
+    returning data in ascending order for a specified timescale. """
+    parsed_data = []
+    end_date = datetime.now() - timedelta(days=timescales[timescale])
+    for item in reversed(data):
+        try:
+            date = item['date']
+            # If the date of the MA calculation is outside of the date range, it is ignored.
+            if datetime.strptime(date, "%Y-%m-%d") >= end_date:
+                parsed_data.append(item)
+
+            else:
+                # Processed date outside the timescale range.
+                break
+
+        except IndexError:
+            raise MissingData
+
+    return parsed_data
