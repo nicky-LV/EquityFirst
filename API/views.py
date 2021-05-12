@@ -5,7 +5,7 @@ from rest_framework.exceptions import ValidationError
 
 from .serializers import MovingAverageSerializer
 from Equity.constants import equity_symbols, technical_indicators
-from Equity.classes import EquityData
+from Equity.classes import Equity
 
 
 class MovingAverage(APIView):
@@ -38,11 +38,11 @@ class GetTechnicalIndicators(APIView):
 
 class GetHistoricalData(APIView):
     def get(self, request, equity):
-        equity_object = EquityData(equity=equity)
-        return Response(data=equity_object.get_historic_data(), status=status.HTTP_200_OK)
+        equity_object = Equity(equity=equity, timescale="ytd")
+        return Response(data=equity_object.historical_data, status=status.HTTP_200_OK)
 
 
 class GetCloseData(APIView):
     def get(self, request, equity):
-        close_price = EquityData(equity=equity).close
+        close_price = Equity(equity=equity).close
         return Response(data=close_price, status=status.HTTP_200_OK)

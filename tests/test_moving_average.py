@@ -2,10 +2,10 @@
 Tests the capability of calculating moving averages.
 """
 import pytest
-from Equity.classes import EquityMovingAvg, Base
+from Equity.classes import EquityMovingAvg, Equity
 from Redis.classes import Redis
 import random
-from Equity.constants.equity_symbols import equity_symbols
+from Equity.constants import equity_symbols
 
 
 @pytest.fixture
@@ -19,8 +19,8 @@ def moving_avg_instance() -> list:
     """Returns a EquityMovingAvg instance"""
     index = random.randint(0, len(equity_symbols)-1)
     equity = str(equity_symbols[index])
-    return [EquityMovingAvg(equity, time_range="1m", exponential=False), EquityMovingAvg(equity, time_range="1m",
-                                                                                         exponential=True)]
+    return [EquityMovingAvg(equity=equity, timescale="1M", exponential=False),
+            EquityMovingAvg(equity=equity, timescale="1M", exponential=True)]
 
 
 def test_set_moving_average(moving_avg_instance, database):
@@ -31,4 +31,4 @@ def test_set_moving_average(moving_avg_instance, database):
 
 def test_equity_base_params():
     with pytest.raises(AttributeError):
-        Base(123)
+        Equity(123)

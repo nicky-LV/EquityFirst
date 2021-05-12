@@ -6,7 +6,7 @@ class InvalidTimescale(Exception):
     pass
 
 
-class MissingMAData(Exception):
+class MissingData(Exception):
     pass
 
 

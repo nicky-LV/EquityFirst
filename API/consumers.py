@@ -4,7 +4,7 @@ import functools
 
 from .models import Channels, Groups
 
-from Equity.classes import Base
+from Equity.classes import Equity
 from Equity.exceptions import MissingPriceData
 
 
@@ -22,7 +22,7 @@ class RealtimePriceConsumer(AsyncJsonWebsocketConsumer):
         Accepts WS connection. Creates a group for this channel and its specific equity.
         """
         self.equity = self.scope['url_route']['kwargs']['equity']
-        self.equity_data = Base(equity=self.equity)
+        self.equity_data = Equity(equity=self.equity)
         # Assign channel to group within database, so we can query it within Celery tasks.
         await self.assign_channel_to_group()
         # Add channel to group within channel layer
@@ -43,7 +43,7 @@ class RealtimePriceConsumer(AsyncJsonWebsocketConsumer):
         if content['type'] == "CHANGE_EQUITY":
             # Updates selected equity of channel.
             self.equity = content['equity']
-            self.equity_data = Base(equity=self.equity)
+            self.equity_data = Equity(equity=self.equity)
             # Updates price shown to client.
             await self.update_price({
                 'text': self.equity_data.price

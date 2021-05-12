@@ -68,7 +68,7 @@ def get_closing_price(equity):
         return {"close": close, "timestamp": timestamp}
 
 
-def parse_data(data: list, timescale: str):
+def parse_data(data: list, timescale: str) -> list:
     """ Parses data objects within a list.
     returning data in ascending order for a specified timescale. """
     parsed_data = []
@@ -87,4 +87,5 @@ def parse_data(data: list, timescale: str):
         except IndexError:
             raise MissingData
 
-    return list(reversed(parsed_data))
+    return parsed_data
+

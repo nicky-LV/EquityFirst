@@ -31,6 +31,7 @@ APPEND_SLASH = True
 INSTALLED_APPS = [
     'Equity.apps.EquityConfig',
     'API.apps.ApiConfig',
+    'Celery',
     'Redis.apps.RedisConfig',
     'django.contrib.admin',
     'corsheaders',

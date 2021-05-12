@@ -38,7 +38,8 @@ def compare_dates(date):
         raise AttributeError("Passed datetime objects are not dates.")
 
 
-class Base:
+class Equity:
+    # Todo: Add method for retrieving yesterday's data (and updating historical_data with this data).
     @valid_equity_required
     def __init__(self, equity):
         self.equity = equity
@@ -79,69 +80,17 @@ class Base:
         parsed_data = parse_data(data=historical_data, timescale=timescale)
         self.db.set(key=f"{self.equity}", value=parsed_data, permanent=True)
 
-
-class EquityData(Base):
-    @valid_timescale_required
-    def __init__(self, equity, timescale):
-        super().__init__(equity=equity)
+    @property
+    def intraday_data(self):
+        return self.db.get(key=f"{self.equity}-intraday")
 
     def set_intraday_data(self):
         intraday_data = requests.get(
             f"https://cloud.iexapis.com/stable/stock/{self.equity}/intraday-prices/?token={self.IEX_TOKEN}").json()
-
-        # intraday data is parsed into dict format with keys [minute, open, high, low, close]
-
-        intraday_data_parsed = [
-            [data['minute'],
-             data['open'],
-             data['high'],
-             data['low'],
-             data['close']
-             ]
-
-            for data in intraday_data
-        ]
-
-        self.db.set(key=f"{self.equity}-intraday", value=intraday_data_parsed, permanent=True)
-
-        return intraday_data_parsed
-
-    def get_intraday_data(self):
-        """
-        Retrieve intraday data for an equity.
-        :return: list - Nested list of data in format [[date, open, high, low, close], [...]]
-        """
-        return self.db.get(f"{self.equity}-intraday")
-
-    def set_previous_day_data(self):
-        # get date from last day saved in redis DB.
-        previous_day_saved = self.db.get(key=self.equity)[-1]['date']
-        if compare_dates(previous_day_saved):
-            previous_day_data = requests.get(
-                f"https://cloud.iexapis.com/stable/stock/{self.equity}/previous/?token={self.IEX_TOKEN}").json()
-
-            previous_day_data_parsed = {
-                'date': previous_day_data['date'],
-                'open': previous_day_data['open'],
-                'high': previous_day_data['high'],
-                'low': previous_day_data['low'],
-                'close': previous_day_data['close']
-            }
-
-            # retrieve current historical data
-            historical_data = self.db.get(key=self.equity)
-            historical_data.append(previous_day_data_parsed)
-
-            # update the historical data with previous day's data
-            self.db.set(key=self.equity, value=historical_data, permanent=True)
-
-            return historical_data
-
-        else:
-            raise ArithmeticError("Cannot assign data for previous trading day because today - yesterday != 1 day.")
+        self.db.set(key=f"{self.equity}-intraday", value=intraday_data)
 
 
-class EquityMovingAvg(Base):
+class EquityMovingAvg(Equity):
     """
     EquityMovingAvg is a separate class as it can encapsulate both the SMA and EMA indicators.
     """
@@ -211,7 +160,7 @@ class EquityMovingAvg(Base):
         return parsed_data
 
 
-class EquityIndicators(Base):
+class EquityIndicators(Equity):
     def __init__(self, equity: str, timescale: str):
         super().__init__(equity=equity)
 
