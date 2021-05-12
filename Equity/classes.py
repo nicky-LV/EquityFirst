@@ -6,8 +6,8 @@ from typing import Union
 from django.conf import settings
 from Redis.classes import Redis
 
-from .utils import timescale_is_valid
-from .decorators import valid_equity_required
+from .utils import timescale_is_valid, parse_data
+from .decorators import valid_equity_required, valid_timescale_required
 from .constants import equity_symbols, timescales
 from .exceptions import *
 
@@ -69,71 +69,22 @@ class Base:
     def close(self, payload: dict):
         self.db.set(key=f"{self.equity}-close", value=payload, permanent=True)
 
+    @property
+    def historical_data(self):
+        return self.db.get(key=f"{self.equity}")
+
+    @valid_timescale_required
+    def set_historical_data(self, timescale):
+        historical_data = requests.get(f"https://cloud.iexapis.com/stable/stock/{self.equity}/chart/{timescale}/?token={self.IEX_TOKEN}").json()
+        parsed_data = parse_data(data=historical_data, timescale=timescale)
+        self.db.set(key=f"{self.equity}", value=parsed_data, permanent=True)
+
 
 class EquityData(Base):
-    def __init__(self, equity):
+    @valid_timescale_required
+    def __init__(self, equity, timescale):
         super().__init__(equity=equity)
 
-    # saves and returns historic data.
-    def set_historic_data(self, time_range="1y"):
-        """
-        Set the historical data for an equity.
-        :param time_range: str - "1y" "1m" "1d" for 1 year, month or day respectively. Leave blank for all historical data.
-        :return: dict - {date: [open, high, low, close], ...}
-        """
-        historic_data = requests.get(
-            f"https://cloud.iexapis.com/stable/stock/{self.equity}/chart/{time_range}/?token={self.IEX_TOKEN}").json()
-
-        historic_data_parsed = {
-            data['date']:  [
-                data['open'],
-                data['high'],
-                data['low'],
-                data['close']
-            ]
-            for data in historic_data
-        }
-
-        # this historic data must be saved as a string within the redis database (serialize to json)
-        self.db.set(key=self.equity, value=historic_data_parsed, permanent=True)
-
-        return historic_data_parsed
-
-    # todo: refactor this method and enable efficient parsing.
-    def get_historic_data(self, dict_format=False):
-        """
-        Retrieve historical data for an equity.
-        :return: list - nested list of historical data [[date, open, high, low, close], [...]]
-        """
-
-        historic_data = self.db.get(key=self.equity)
-
-        if dict_format:
-            return historic_data
-
-        else:
-            weekly_data = []
-            monthly_data = []
-            yearly_data = []
-
-            count = 0
-            for key, value in historic_data.items():
-                data = [key]
-                for i in range(len(value)):
-                    data.append(value[i])
-
-                if count > len(historic_data) - 31:
-                    monthly_data.append(data)
-                    if count > len(historic_data) - 8:
-                        weekly_data.append(data)
-
-                yearly_data.append(data)
-
-                count += 1
-
-            return weekly_data, monthly_data, yearly_data
-
-    # saves and returns intraday data.
     def set_intraday_data(self):
         intraday_data = requests.get(
             f"https://cloud.iexapis.com/stable/stock/{self.equity}/intraday-prices/?token={self.IEX_TOKEN}").json()
@@ -210,7 +161,7 @@ class EquityMovingAvg(Base):
         if self.timescale == "ytd":
             return data
 
-        return self.parse_moving_average(data, self.timescale)
+        parse_data(data, self.timescale)
 
     def set_moving_average(self) -> None:
         """
@@ -258,26 +209,6 @@ class EquityMovingAvg(Base):
                 })
 
         return parsed_data
-
-    @staticmethod
-    def parse_moving_average(equity_ma, timescale):
-        """ Parses a moving average, returning data in ascending order for a specified timescale. """
-        parsed_ma = []
-        end_date = datetime.now() - timedelta(days=timescales[timescale])
-        for i in range(len(equity_ma) - 1, -1, -1):
-            try:
-                ma = equity_ma[i]
-                # If the date of the MA calculation is outside of the date range, it is ignored.
-                if datetime.strptime(ma['date'], "%Y-%m-%d") >= end_date:
-                    parsed_ma.append(ma)
-
-                else:
-                    break
-
-            except IndexError:
-                raise MissingMAData
-
-        return parsed_ma
 
 
 class EquityIndicators(Base):
