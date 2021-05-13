@@ -10,7 +10,7 @@ export default function TechnicalIndicatorButton(props: TechnicalIndicatorButton
     }
 
     return(
-        <div className="border rounded-md shadow-sm flex-grow w-1/3 p-2">
+        <div className="border rounded-md shadow-md border-gray-300 bg-white flex-grow w-full p-2">
             <Switch.Group as="div" className="flex items-center justify-between">
                 <Switch.Label as="span" className="flex-grow flex flex-col" passive>
                     <span className="text-sm font-medium text-gray-900"><span className="font-bold">{props.name}</span></span>

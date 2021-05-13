@@ -2,12 +2,11 @@ import Card from "./card";
 import TechnicalIndicatorList from "../technicalAnalysis/technicalIndicatorList";
 import TechnicalStats from "../technicalAnalysis/technicalStats";
 
-export default function TechnicalAnalysisCard(props){
+export default function TechnicalStatsCard(props){
     return (
-        <Card header="Technical Analysis">
+        <Card header={<span className="font-bold">Technical Analysis</span>}>
             <div>
                 <TechnicalStats />
-                <TechnicalIndicatorList />
             </div>
         </Card>
     )

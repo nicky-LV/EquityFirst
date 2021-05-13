@@ -15,5 +15,5 @@ export default function useMovingAverageData() : ReturnType<typeof useQuery>{
 
     return useQuery(indicator,
         () => getMovingAverageData(equity, indicator, timescale),
-        {enabled: Object.values(MOVING_AVG).includes(indicator)})
+        {enabled: Object.values(MOVING_AVG).includes(indicator), retry: false})
 }

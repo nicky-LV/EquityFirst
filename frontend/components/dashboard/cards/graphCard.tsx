@@ -17,7 +17,7 @@ export default function GraphCard(props) {
 
     return (
             <Card
-                header={<span><span className="font-bold">{equity}</span> Equity Graph</span>}
+                header={<p><span className="font-bold">{equity}</span> Equity Graph</p>}
                 headerContent={<SelectTimerange />}
             >
                 <div></div>
