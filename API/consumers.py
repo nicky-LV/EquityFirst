@@ -12,7 +12,7 @@ class RealtimePriceConsumer(AsyncJsonWebsocketConsumer):
     def __init__(self):
         super().__init__()
         self.equity = None
-        self.equity_data = None
+        self.equity_obj = None
         self.group_name = None
         self.group = None
         self.channel = None
@@ -22,7 +22,7 @@ class RealtimePriceConsumer(AsyncJsonWebsocketConsumer):
         Accepts WS connection. Creates a group for this channel and its specific equity.
         """
         self.equity = self.scope['url_route']['kwargs']['equity']
-        self.equity_data = Equity(equity=self.equity)
+        self.equity_obj = Equity(equity=self.equity)
         # Assign channel to group within database, so we can query it within Celery tasks.
         await self.assign_channel_to_group()
         # Add channel to group within channel layer
@@ -30,10 +30,10 @@ class RealtimePriceConsumer(AsyncJsonWebsocketConsumer):
         # Accept websocket connection
         await self.accept()
 
-        # Send initial price-data
+
         try:
-            price = self.equity_data.price
-            await self.send_json(content=price)
+            # Send initial price-data
+            await self.send_json(content=self.equity_obj.websocket_data)
 
         except MissingPriceData:
             pass
@@ -43,10 +43,10 @@ class RealtimePriceConsumer(AsyncJsonWebsocketConsumer):
         if content['type'] == "CHANGE_EQUITY":
             # Updates selected equity of channel.
             self.equity = content['equity']
-            self.equity_data = Equity(equity=self.equity)
+            self.equity_obj = Equity(equity=self.equity)
             # Updates price shown to client.
             await self.update_price({
-                'text': self.equity_data.price
+                "text": self.equity_obj.websocket_data
             })
 
     async def disconnect(self, code):
@@ -55,8 +55,8 @@ class RealtimePriceConsumer(AsyncJsonWebsocketConsumer):
 
     async def update_price(self, data):
         # Checks if market is open (thus a price update is available)
-        price = data['text']
-        await self.send_json(content=price)
+        ws_data = data['text']
+        await self.send_json(content=ws_data)
 
     def get_channel(self):
         """

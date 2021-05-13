@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from typing import Union
 import requests
 from django.conf import settings
 

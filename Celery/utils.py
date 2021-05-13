@@ -27,12 +27,13 @@ def channels_update_equity_price(equity: str):
     # Retrieve channel layer
     channel_layer = get_channel_layer()
     equity_object = Equity(equity=equity)
-    price = equity_object.price
+    ws_data = equity_object.websocket_data
+    print(ws_data)
 
     # Update channel layer groups with name: (symbol)-price
     async_to_sync(channel_layer.group_send)(f"{equity}-price", {
         'type': 'update.price',
-        'text': price
+        'text': ws_data
     })
 
 

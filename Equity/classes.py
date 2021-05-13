@@ -89,6 +89,27 @@ class Equity:
             f"https://cloud.iexapis.com/stable/stock/{self.equity}/intraday-prices/?token={self.IEX_TOKEN}").json()
         self.db.set(key=f"{self.equity}-intraday", value=intraday_data)
 
+    @property
+    def websocket_data(self) -> dict:
+        """
+        Provides websocket data, a dict of {
+        "price": float - Realtime price.
+        "close": float - Closing price.
+        "type": string - "increase" or "decrease" depending if price increased from closing price.
+        "percentage": float - Percentage change.
+        }
+        :return:
+        """
+        percentage = ((self.price - self.close['close']) / self.close['close']) * 100
+        type_ = lambda diff: "DECREASE" if diff < 0 else "INCREASE"
+
+        return {
+            "price": self.price,
+            "close": self.close['close'],
+            "type": type_(percentage),
+            "percentage": abs(percentage)
+        }
+
 
 class EquityMovingAvg(Equity):
     """
@@ -221,12 +242,3 @@ class EquityIndicators(Equity):
 
         # parsed_data contains dicts which are in ascending order.
         return parsed_data
-
-
-
-
-
-
-
-
-

@@ -13,7 +13,7 @@ class MovingAverageSerializer(serializers.Serializer):
     timescale = serializers.CharField(max_length=10, required=True, validators=[serializer_timescale_is_valid])
 
     @validated_data_required
-    def calculate_ma(self, exponential=False):
+    def calculate_ma(self):
         equity = self.validated_data['equity']
         timescale = self.validated_data['timescale']
         exponential = is_exponential(self.validated_data['ma_type'])

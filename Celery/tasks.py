@@ -21,6 +21,7 @@ def channels_realtime_price():
 @shared_task
 def cache_equity_prices():
     """
+    Requests current equity price from data-provider.
     Caches prices for each equity.
     """
     for equity in equity_symbols:
@@ -41,4 +42,7 @@ def cache_closing_prices():
 @shared_task
 def cache_sma():
     """ Caches SMA values for each equity. """
-    pass
+    for equity in equity_symbols:
+        obj = EquityMovingAvg(equity=equity, timescale="1M", exponential=False)
+        # Todo: Consider lowering the timescale, once we have sufficient cached data.
+        obj.set_moving_average()
