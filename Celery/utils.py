@@ -2,10 +2,10 @@ from asgiref.sync import async_to_sync
 from django.conf import settings
 from channels.layers import get_channel_layer
 
-from Equity.utils import get_price
-from Equity.decorators import valid_equity_required
-from Equity.constants import equity_symbols
-from Equity.classes import Equity
+from backend.Equity.utils import get_price
+from backend.Equity.decorators import valid_equity_required
+from backend.Equity.constants import equity_symbols
+from backend.Equity.classes import Equity
 
 
 def populate_historic_data():

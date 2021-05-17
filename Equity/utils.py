@@ -51,8 +51,7 @@ def is_exponential(ma_type: str):
 
 def get_price(equity):
     if equity_is_valid(equity):
-        return requests.get(f"https://cloud.iexapis.com/stable/stock/{equity}/price?token={settings.IEXCLOUD_TOKEN}") \
-            .json()
+        return requests.get(f"https://cloud.iexapis.com/stable/stock/{equity}/price?token={settings.IEXCLOUD_TOKEN}").json()
 
 
 def get_closing_price(equity):
@@ -62,8 +61,7 @@ def get_closing_price(equity):
     {"close": float, "timestamp": int}
     """
     if equity_is_valid(equity):
-        close = requests.get(
-            f"https://cloud.iexapis.com/stable/stock/{equity}/quote/close/?token={settings.IEXCLOUD_TOKEN}").json()
+        close = requests.get(f"https://cloud.iexapis.com/stable/stock/{equity}/quote/close?token={settings.IEXCLOUD_TOKEN}").json()
         timestamp = datetime.now().timestamp()
 
         return {"close": close, "timestamp": timestamp}

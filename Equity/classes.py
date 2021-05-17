@@ -1,10 +1,10 @@
 import requests
-from datetime import datetime, timedelta
+from datetime import datetime
 from functools import lru_cache
 from typing import Union
 
 from django.conf import settings
-from Redis.classes import Redis
+from backend.Redis.classes import Redis
 
 from .utils import timescale_is_valid, parse_data
 from .decorators import valid_equity_required, valid_timescale_required

@@ -1,10 +1,9 @@
 from rest_framework import serializers
-from rest_framework import fields
 
 from .utils import *
 from .decorators import validated_data_required
-from Equity.utils import is_exponential
-from Equity.classes import EquityMovingAvg
+from backend.Equity.utils import is_exponential
+from backend.Equity.classes import EquityMovingAvg
 
 
 class MovingAverageSerializer(serializers.Serializer):

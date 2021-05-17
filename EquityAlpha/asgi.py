@@ -1,5 +1,5 @@
 """
-ASGI config for CryptoDash project.
+ASGI config for EquityAlpha project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
@@ -14,7 +14,7 @@ from django.urls import path
 from channels.routing import ProtocolTypeRouter, URLRouter
 from API.consumers import RealtimePriceConsumer
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'CryptoDash.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'EquityAlpha.settings')
 
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),

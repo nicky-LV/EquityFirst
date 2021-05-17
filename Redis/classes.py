@@ -10,20 +10,9 @@ If we plan to expand for future stocks (e.g. equities) we should let external AP
 handle the storage of them, we will just be the middleman of data.
 """
 
-"""
-Equities are stored like so:
-
-<ticker> | <historical data>
-<ticker>-intraday | <intraday data (today)>
-< ticker >-<analysis_method> | <data returned from analysis method>
-"""
-
 import redis
 import json
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
 import datetime
-from django.conf import settings
 
 
 def remaining_time():

@@ -4,8 +4,8 @@ import functools
 
 from .models import Channels, Groups
 
-from Equity.classes import Equity
-from Equity.exceptions import MissingPriceData
+from backend.Equity.classes import Equity
+from backend.Equity.exceptions import MissingPriceData
 
 
 class RealtimePriceConsumer(AsyncJsonWebsocketConsumer):

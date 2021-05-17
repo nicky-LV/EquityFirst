@@ -1,12 +1,7 @@
-import asyncio
-from asgiref.sync import async_to_sync
 from celery import shared_task
-from django.conf import settings
-from channels.layers import get_channel_layer
 
 from .utils import *
-from Equity.classes import *
-from Equity.utils import *
+from backend.Equity.utils import *
 
 
 @shared_task
@@ -44,5 +39,4 @@ def cache_sma():
     """ Caches SMA values for each equity. """
     for equity in equity_symbols:
         obj = EquityMovingAvg(equity=equity, timescale="1M", exponential=False)
-        # Todo: Consider lowering the timescale, once we have sufficient cached data.
         obj.set_moving_average()

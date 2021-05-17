@@ -1,0 +1,44 @@
+version: '3.3'
+
+services:
+  db:
+    image: postgres
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+    ports:
+      - "5432"
+
+  redis:
+    image: redis
+    volumes:
+      - ./docker-volume
+    ports: 
+      - "6379"
+
+
+  backend:
+    build: .
+    volumes:
+      - ./docker-volume
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    depends_on: 
+      - db
+
+  frontend:
+    build: frontend/
+    command: npm run dev
+    volumes:
+      - ./docker-volume
+    ports:
+      - "3000:3000"
+    depends_on: 
+      - backend
+
+  
