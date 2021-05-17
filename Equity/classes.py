@@ -4,7 +4,7 @@ from functools import lru_cache
 from typing import Union
 
 from django.conf import settings
-from backend.Redis.classes import Redis
+from Redis.classes import Redis
 
 from .utils import timescale_is_valid, parse_data
 from .decorators import valid_equity_required, valid_timescale_required
@@ -109,7 +109,6 @@ class Equity:
             "type": type_(percentage),
             "percentage": abs(percentage)
         }
-
 
 class EquityMovingAvg(Equity):
     """

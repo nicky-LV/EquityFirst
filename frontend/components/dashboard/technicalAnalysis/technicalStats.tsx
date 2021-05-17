@@ -1,4 +1,5 @@
 import { ArrowSmDownIcon, ArrowSmUpIcon } from '@heroicons/react/solid'
+import PriceTargets from './priceTargets';
 import StatsRow from "./statsRow";
 
 const stats = [
@@ -14,8 +15,7 @@ const stats = [
 export default function TechnicalStats() {
     return (
         <div>
-            <div className="mt-3 rounded-lg bg-white divide-y-0 lg:divide-y border">
-                <StatsRow pair={[stats[0], stats[1]]} />
+            <div className="rounded-lg bg-white divide-y-0 lg:divide-y border">
                 <StatsRow pair={[stats[0], stats[1]]} />
                 <StatsRow pair={[stats[0], stats[1]]} />
             </div>

@@ -1,7 +1,7 @@
 from celery import shared_task
 
 from .utils import *
-from backend.Equity.utils import *
+from Equity.utils import *
 
 
 @shared_task

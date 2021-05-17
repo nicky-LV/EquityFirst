@@ -4,6 +4,7 @@ export const SET_TECHNICAL_INDICATOR = "SET_TECHNICAL_INDICATOR";
 export const SET_TIMESCALE = "SET_TIMESCALE";
 export const SET_HISTORICAL_DATA = "SET_HISTORICAL_DATA";
 export const SET_REALTIME_WS = "SET_REALTIME_WS";
+export const SET_PRICE = "SET_PRICE"
 
 import {TIMESCALE} from "../ts/types";
 

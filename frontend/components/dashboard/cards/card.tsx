@@ -8,7 +8,7 @@ export default function Card(props : CardProps){
                 {props.headerContent}
             </CardHeader>
 
-            <div className="px-4 py-4">
+            <div className="px-4 py-4 flex flex-col gap-6">
                 {props.children}
             </div>
         </div>

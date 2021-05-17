@@ -29,14 +29,12 @@ def equity_is_valid(equity: str):
         return True
     raise InvalidEquity
 
-
 def timescale_is_valid(timescale: str):
     # Verifies that specified time_range is valid
     if timescale in timescales:
         return True
     raise InvalidTimescale("Timescale is invalid.")
-
-
+    
 def ma_type_is_valid(ma_type: str):
     if ma_type in ma_types:
         return True
@@ -87,4 +85,3 @@ def parse_data(data: list, timescale: str) -> list:
             raise MissingData
 
     return parsed_data
-

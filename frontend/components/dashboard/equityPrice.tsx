@@ -20,7 +20,7 @@ const EquityPrice = () => {
 
     useEffect(() => {
         // Realtime-data WS object.
-        const ws = new WebSocket(`ws://127.0.0.1:8000/realtime-price/${equity}/`)
+        const ws = new WebSocket(`${process.env.NEXT_PUBLIC_WS_URI}/realtime-price/${equity}/`)
 
         // Saving WS object in store. (To send re-group request for new equity data).
         dispatch({
@@ -31,6 +31,7 @@ const EquityPrice = () => {
         // Handle server data.
         ws.onmessage = (data) => {
             const serverData: serverDataType = JSON.parse(data.data)
+            console.log(serverData)
             const {price, close, type, percentage} = serverData
 
             // Update price state.

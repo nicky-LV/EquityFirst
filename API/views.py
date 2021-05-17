@@ -4,8 +4,8 @@ from rest_framework import status
 from rest_framework.exceptions import ValidationError
 
 from .serializers import MovingAverageSerializer
-from backend.Equity.constants import equity_symbols, technical_indicators
-from backend.Equity.classes import Equity
+from Equity.constants import equity_symbols, technical_indicators
+from Equity.classes import Equity
 
 
 class MovingAverage(APIView):

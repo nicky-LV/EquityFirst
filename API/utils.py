@@ -1,7 +1,7 @@
 from rest_framework.validators import ValidationError
 
-from backend.Equity.utils import equity_is_valid, timescale_is_valid, ma_type_is_valid
-from backend.Equity.exceptions import *
+from Equity.utils import equity_is_valid, timescale_is_valid, ma_type_is_valid
+from Equity.exceptions import *
 
 """
 Serializer utils (some are wrappers around Equity utils - as failures must raise a ValidationError).

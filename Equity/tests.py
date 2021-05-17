@@ -1,7 +1,7 @@
 import pytest
 import random
 
-from backend.Redis.classes import Redis
+from Redis.classes import Redis
 
 from .classes import Equity
 from .utils import *

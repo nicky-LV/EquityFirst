@@ -1,5 +1,5 @@
 """
-WSGI config for EquityAlpha project.
+WSGI config for docker-equityalpha project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 

@@ -61,12 +61,14 @@ export function rootReducer(storeState=initialStoreState, dispatch){
 }
 
 interface intialStoreStateType {
+    price: number | null;
     selectedEquity: string,
     technicalIndicator: string,
     timescale: TIMESCALE,
     realtimeWS: WebSocket | null,
 }
 const initialStoreState: intialStoreStateType = {
+    price: null,
     selectedEquity: "MSFT",
     technicalIndicator: "SMA",
     timescale: TIMESCALE.DAY,
