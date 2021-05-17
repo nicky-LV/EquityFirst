@@ -1,5 +1,4 @@
-import SelectEquity from "./inputs/selectEquity";
-import SelectTimerange from "./inputs/selectTimerange";
+import SelectEquity from "../../interactive/selectEquity";
 
 export default function DashboardHeader(){
     return(

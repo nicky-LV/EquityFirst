@@ -3,7 +3,7 @@ import {RootState} from "../../../redux/store";
 import SelectTimerange from "../inputs/selectTimerange";
 import useMovingAverageData from "../../../hooks/getMovingAvg";
 import {useEffect, useRef} from "react";
-import Card from "./card";
+import Card from "../cards/card";
 
 export default function GraphCard(props) {
     const equity: string = useSelector((store: RootState) => store.selectedEquity)

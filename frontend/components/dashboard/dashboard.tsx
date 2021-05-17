@@ -11,9 +11,9 @@ import {
   UsersIcon,
   XIcon,
 } from '@heroicons/react/outline'
-import DashboardHeader from "./dashboardHeader";
 import ContentContainer from "./containers/contentContainer";
 import EquityPrice from "./equityPrice";
+import DashboardHeader from './header/dashboardHeader';
 
 const navigation = [
   { name: 'Dashboard', href: '#', icon: HomeIcon, current: true },
@@ -140,7 +140,7 @@ export default function Dashboard(props) {
         <div className="flex flex-col w-64">
           {/* Sidebar component, swap this element with another dashboard if you like */}
           <div className="flex flex-col h-0 flex-1 bg-gray-800">
-            <div className="flex items-center px-4 logo-section content-center items-center">
+            <div className="flex items-center px-4 logo-section content-center">
                 <div className="logo md:block sm:hidden"> <p>Image</p> </div>
               </div>
             <div className="flex-1 flex flex-col overflow-y-auto">

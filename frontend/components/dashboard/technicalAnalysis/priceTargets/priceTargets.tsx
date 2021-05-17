@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "../../../redux/store";
+import { RootState } from "../../../../redux/store";
 
 function borderColorFromRecommendation(recommendation: Recommendation) {
     switch (recommendation) {

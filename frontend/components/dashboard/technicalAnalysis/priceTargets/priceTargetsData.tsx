@@ -1,6 +1,5 @@
-import { PaperClipIcon } from '@heroicons/react/solid'
 import { useSelector } from 'react-redux';
-import { RootState } from '../../../redux/store';
+import { RootState } from '../../../../redux/store';
 import PriceTargets from './priceTargets';
 
 export default function PriceTargetsData() {

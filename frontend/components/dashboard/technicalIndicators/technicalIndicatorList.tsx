@@ -1,6 +1,6 @@
 import {useQuery} from "react-query";
 import {getTechnicalIndicators} from "../../../pages/api/getTechnicalIndicators";
-import TechnicalIndicatorButton from "../inputs/technicalIndicatorButton";
+import TechnicalIndicatorButton from "../../interactive/technicalIndicatorButton";
 import Divider from "../../divider";
 
 export default function TechnicalIndicatorList() {

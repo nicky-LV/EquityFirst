@@ -1,12 +1,11 @@
-/* This example requires Tailwind CSS v2.0+ */
-import { Fragment, useState } from 'react'
+import { Fragment} from 'react'
 import { Listbox, Transition } from '@headlessui/react'
 import { CheckIcon, SelectorIcon } from '@heroicons/react/solid'
-import {useQuery} from "react-query";
-import {getEquitySymbols} from "../../../pages/api/getEquitySymbols";
-import {useDispatch, useSelector} from "react-redux";
-import {RootState} from "../../../redux/store";
-import {SET_SELECTED_EQUITY} from "../../../redux/constants";
+import { useQuery } from "react-query";
+import { useDispatch, useSelector } from "react-redux";
+import { SET_SELECTED_EQUITY } from '../../redux/constants';
+import { RootState } from '../../redux/store';
+import { getEquitySymbols } from '../../pages/api/getEquitySymbols';
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')

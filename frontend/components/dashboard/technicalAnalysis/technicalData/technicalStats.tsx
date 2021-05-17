@@ -1,5 +1,3 @@
-import { ArrowSmDownIcon, ArrowSmUpIcon } from '@heroicons/react/solid'
-import PriceTargets from './priceTargets';
 import StatsRow from "./statsRow";
 
 const stats = [
@@ -9,8 +7,6 @@ const stats = [
     { name: 'Avg. Open Rate', stat: '58.16%', previousStat: '56.14%', change: '2.02%', changeType: 'increase' },
 
 ]
-
-
 
 export default function TechnicalStats() {
     return (
