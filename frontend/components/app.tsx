@@ -19,7 +19,7 @@ const App = () => {
 
     // Promise rejected
     else if (query.isError){
-        addToast("Error retrieving ticker options", {
+        addToast("Error retrieving equity symbols", {
             appearance: "warning",
             autoDismiss: true
         })

@@ -1,4 +1,4 @@
-import { Fragment} from 'react'
+import { Fragment } from 'react'
 import { Listbox, Transition } from '@headlessui/react'
 import { CheckIcon, SelectorIcon } from '@heroicons/react/solid'
 import { useQuery } from "react-query";
@@ -16,7 +16,7 @@ export default function SelectEquity() {
     const dispatch = useDispatch()
     const response = useQuery("fetchEquity", getEquitySymbols)
 
-    function dispatchEquity(value){
+    function dispatchEquity(value) {
         dispatch({
             type: SET_SELECTED_EQUITY,
             payload: value
@@ -30,13 +30,13 @@ export default function SelectEquity() {
                     <Listbox.Label className="block text-sm font-medium text-gray-700">Select an equity</Listbox.Label>
                     <div className="mt-1 relative">
                         <Listbox.Button className="relative w-full bg-white border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-              <span className="w-full inline-flex truncate">
-                <span className="truncate">{equity}</span>
-                <span className="ml-2 truncate text-gray-500">NYSE</span>
-              </span>
+                            <span className="w-full inline-flex truncate">
+                                <span className="truncate">{equity}</span>
+                                <span className="ml-2 truncate text-gray-500">NYSE</span>
+                            </span>
                             <span className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                <SelectorIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
-              </span>
+                                <SelectorIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                            </span>
                         </Listbox.Button>
 
                         <Transition
@@ -64,11 +64,11 @@ export default function SelectEquity() {
                                         {({ selected, active }) => (
                                             <>
                                                 <div className="flex">
-                          <span className={classNames(selected ? 'font-semibold' : 'font-normal', 'truncate')}>
-                            {equity}
-                          </span>
+                                                    <span className={classNames(selected ? 'font-semibold' : 'font-normal', 'truncate')}>
+                                                        {equity}
+                                                    </span>
                                                     <span className={classNames(active ? 'text-indigo-200' : 'text-gray-500', 'ml-2 truncate')}>
-                            NYSE
+                                                        NYSE
                           </span>
                                                 </div>
 
@@ -79,8 +79,8 @@ export default function SelectEquity() {
                                                             'absolute inset-y-0 right-0 flex items-center pr-4'
                                                         )}
                                                     >
-                            <CheckIcon className="h-5 w-5" aria-hidden="true" />
-                          </span>
+                                                        <CheckIcon className="h-5 w-5" aria-hidden="true" />
+                                                    </span>
                                                 ) : null}
                                             </>
                                         )}

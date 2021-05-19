@@ -1,8 +1,7 @@
 import {useDispatch, useSelector} from "react-redux";
-import {useQuery} from "react-query";
-import {SET_TIMESCALE, TIME_SCALE_VALUES} from "../../../redux/constants";
-import {TIMESCALE} from "../../../ts/types";
-import {RootState} from "../../../redux/store";
+import { SET_TIMESCALE } from "../../redux/constants";
+import { RootState } from "../../redux/store";
+import { TIMESCALE } from '../../ts/types';
 
 export default function SelectTimerange() {
     const timescale = useSelector((store: RootState) => store.timescale)

@@ -24,7 +24,7 @@ services:
   backend:
     build: .
     volumes:
-      - ./docker-volume
+      - .:.
     command: python manage.py runserver 0.0.0.0:8000
     ports:
       - "8000:8000"
@@ -35,10 +35,8 @@ services:
     build: frontend/
     command: npm run dev
     volumes:
-      - ./docker-volume
+      - ./frontend:.
     ports:
       - "3000:3000"
     depends_on: 
       - backend
-
-  
