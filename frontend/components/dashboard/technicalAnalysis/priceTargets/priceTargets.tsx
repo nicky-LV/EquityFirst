@@ -2,17 +2,17 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../../redux/store";
 
-function borderColorFromRecommendation(recommendation: Recommendation) {
+function borderColorFromRecommendation(recommendation: Recommendations) {
     switch (recommendation) {
-        case Recommendation.STRONGBUY:
-        case Recommendation.BUY:
+        case Recommendations.STRONGBUY:
+        case Recommendations.BUY:
             return "text-green-400";
 
-        case Recommendation.HOLD:
+        case Recommendations.HOLD:
             return "text-gray-400";
 
-        case Recommendation.STRONGSELL:
-        case Recommendation.SELL:
+        case Recommendations.STRONGSELL:
+        case Recommendations.SELL:
             return "text-red-400";
 
         default:
@@ -25,7 +25,7 @@ function combineClassNames(...classNames_) {
 }
 
 export default function PriceTargets(props) {
-    const [recommendation, setRecommendation] = useState<Recommendation | null>(Recommendation.STRONGBUY);
+    const [recommendation, setRecommendation] = useState<Recommendations | null>(Recommendations.STRONGBUY);
     const equityPrice = useSelector((store: RootState) => store.price)
     return (
         <div className="flex flex-row text-center justify-center items-center h-full w-full mt-3">
@@ -56,7 +56,7 @@ export default function PriceTargets(props) {
     )
 }
 
-enum Recommendation {
+export enum Recommendations {
     STRONGBUY = "STRONG BUY",
     BUY = "BUY",
     HOLD = "HOLD",
