@@ -4,3 +4,4 @@ EquityAlpha/settings.py
 .idea
 venv
 .venv
+.pytest_cache
