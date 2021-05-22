@@ -30,3 +30,11 @@ export enum PERCENTAGE_TYPE {
     INCREASE = 'increase',
     DECREASE = 'decrease'
 }
+
+export enum Recommendations {
+    STRONGBUY = "STRONG BUY",
+    BUY = "BUY",
+    HOLD = "HOLD",
+    SELL = "SELL",
+    STRONGSELL = "STRONG SELL"
+}
