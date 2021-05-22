@@ -1,6 +1,6 @@
 export default function PriceTargetsHeader(props: PTHeaderProps){
     return (
-        <div className="flex flex-row flex-wrap justify-between items-center px-4 py-5 sm:px-6 gap-4">
+        <div className="flex flex-row flex-wrap justify-between items-center">
             <div className="flex flex-col flex-wrap">
                 <h3 className="text-lg leading-6 font-medium text-gray-900">Analyst Price Targets</h3>
                 <p className="mt-1 max-w-2xl text-sm text-gray-500">Price targets are not definitive and can be subject to bias.</p>

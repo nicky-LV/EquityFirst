@@ -1,13 +1,12 @@
 import {useSelector} from 'react-redux';
 import {RootState} from '../../../../redux/store';
 import {PriceTargetDataType, Recommendations} from "../../../../ts/types";
-import {RecommendationBadge} from "../../../badges/recommendationBadge";
 import {useEffect, useState} from "react";
-import {CountBadge} from "../../../badges/countBadge";
 import PriceTargetsHeader from "./priceTargetsHeader";
 import RecommendationData from "./recommendationData";
 import ScoreInfo from "./scoreInfo";
 import PriceTargetsGrid from "./priceTargetsGrid";
+import Divider from "../../../divider";
 
 export default function PriceTargetsData() {
     const equity = useSelector((store: RootState) => store.selectedEquity);
@@ -25,17 +24,13 @@ export default function PriceTargetsData() {
     return (
         priceTargetData &&
         <div>
-            <PriceTargetsHeader noOfAnalysts={4} />
-            <div className="border-t border-b border-gray-200 px-4 py-5 sm:px-6 gap-3">
-                <div>
-                    <dt className="text-sm font-medium text-gray-500 text-center xl:text-left">Recommendations</dt>
-                    <dd className="mt-4 text-sm text-gray-900">
-                        <div className="grid grid-cols-1 xl:grid-cols-3 xl:divide-y-0 divide-y-2">
-                            <RecommendationData priceTargetData={priceTargetData} />
-                            <ScoreInfo equity={equity} score={priceTargetData.score} />
-                            <PriceTargetsGrid />
-                        </div>
-                    </dd>
+            <div className="grid grid-cols-1 border rounded-lg px-4 py-5 sm:px-6 gap-4">
+                <PriceTargetsHeader noOfAnalysts={4} />
+                <Divider text="Recommendations" />
+                <div className="grid grid-cols-1 xl:grid-cols-3">
+                    <RecommendationData priceTargetData={priceTargetData} />
+                    <ScoreInfo equity={equity} score={priceTargetData.score} />
+                    <PriceTargetsGrid />
                 </div>
             </div>
         </div>

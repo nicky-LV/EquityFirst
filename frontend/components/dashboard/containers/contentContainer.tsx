@@ -4,15 +4,19 @@ import TechnicalIndicatorList from "../technicalIndicators/technicalIndicatorLis
 
 export default function DashboardContent(){
     return(
-            <div className="inline-flex flex-row gap-5 m-5 h-full">
-                <div className="flex flex-col w-full h-auto">
-                        <GraphCard />
-                        <TechnicalIndicatorList />  
+        <div className="inline-flex flex-row m-5 gap-8 h-full">
+            <div className="grid grid-cols-1 grid-rows-1 w-full gap-8 h-auto">
+                <div className="h-full">
+                    <GraphCard />
                 </div>
 
-                <div className="flex flex-col w-full h-full">
-                    <TechnicalAnalysisCard/>
-                </div>
+                <TechnicalIndicatorList />
+
             </div>
+
+            <div className="flex flex-col w-full h-full">
+                <TechnicalAnalysisCard/>
+            </div>
+        </div>
     )
 }
