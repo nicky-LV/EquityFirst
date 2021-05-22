@@ -1,22 +1,24 @@
 import CardHeader from "./cardHeader";
-import {ReactJSXElement} from "@emotion/react/types/jsx-namespace";
+import {ReactNode} from "react";
 
 export default function Card(props : CardProps){
     return (
-        <div className="bg-white flex flex-col border-b border-gray-200 rounded-md h-full w-full">
+        <div className="bg-white flex flex-col justify-between border-b border-gray-200 rounded-lg h-full w-full">
             <CardHeader header={props.header}>
                 {props.headerContent}
             </CardHeader>
 
-            <div className="px-4 py-4 flex flex-col gap-6">
+            <div className="px-4 flex flex-col gap-12">
                 {props.children}
             </div>
+                {props.footer}
         </div>
     )
 }
 
 interface CardProps{
-    header: string | ReactJSXElement
-    headerContent?: ReactJSXElement
-    children?: ReactJSXElement
+    header: string | ReactNode,
+    headerContent?: ReactNode,
+    children?: ReactNode,
+    footer?: ReactNode
 }
