@@ -38,3 +38,9 @@ export enum Recommendations {
     SELL = "SELL",
     STRONGSELL = "STRONG SELL"
 }
+
+export interface PriceTargetDataType {
+    priceTargetData: [[Recommendations.BUY, number], [Recommendations.HOLD, number], [Recommendations.SELL, number]],
+    noOfAnalysts: number,
+    score: number
+}
