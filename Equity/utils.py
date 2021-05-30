@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-from typing import Union
 import requests
 from django.conf import settings
 
@@ -29,12 +28,14 @@ def equity_is_valid(equity: str):
         return True
     raise InvalidEquity
 
+
 def timescale_is_valid(timescale: str):
     # Verifies that specified time_range is valid
     if timescale in timescales:
         return True
     raise InvalidTimescale("Timescale is invalid.")
-    
+
+
 def ma_type_is_valid(ma_type: str):
     if ma_type in ma_types:
         return True
