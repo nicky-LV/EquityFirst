@@ -1,4 +1,5 @@
 import StatsRow from "./statsRow";
+import Card from "../../cards/card";
 
 const stats = [
     { name: 'Total Subscribers', stat: '71,897', previousStat: '70,946', change: '12%', changeType: 'increase' },
@@ -10,11 +11,11 @@ const stats = [
 
 export default function TechnicalStats() {
     return (
-        <div>
-            <div className="rounded-lg bg-white divide-y-0 lg:divide-y border">
+        <Card>
+            <div>
                 <StatsRow pair={[stats[0], stats[1]]} />
                 <StatsRow pair={[stats[0], stats[1]]} />
             </div>
-        </div>
+        </Card>
     )
 }

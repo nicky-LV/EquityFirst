@@ -8,7 +8,6 @@ import SelectTimerange from '../../interactive/selectTimerange';
 export default function GraphCard(props) {
     const equity: string = useSelector((store: RootState) => store.selectedEquity)
     const moving_average = useMovingAverageData()
-    const ref = useRef()
 
     useEffect(() => {
         console.log(moving_average.data)

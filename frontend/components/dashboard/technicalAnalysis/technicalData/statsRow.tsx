@@ -6,7 +6,7 @@ function classNames(...classes) {
 
 export default function StatsRow(props){
     return(
-        <div className="grid grid-cols-1 lg:grid-cols-2 divide-x-0 lg:divide-x w-100">
+        <div className="grid grid-cols-1 lg:grid-cols-2 w-100">
             {props.pair.map(item => (
                 <div key={item.name} className="px-4 py-5 sm:p-6 w-full">
                 <dt className="text-base font-normal text-gray-900">{item.name}</dt>

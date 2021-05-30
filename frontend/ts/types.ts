@@ -1,4 +1,7 @@
-// Intra-day data format
+/**
+ * Non-local types go here
+ */
+
 export interface INTRADAY_DATA{
     average: number;
     close: number;
@@ -40,7 +43,15 @@ export enum Recommendations {
 }
 
 export interface PriceTargetDataType {
-    priceTargetData: [[Recommendations.BUY, number], [Recommendations.HOLD, number], [Recommendations.SELL, number]],
+    recommendations: [[Recommendations.BUY, number], [Recommendations.HOLD, number], [Recommendations.SELL, number]],
+    priceTargets: [[PriceTarget.HIGH, Number], [PriceTarget.LOW, number], [PriceTarget.OVERALL, number]]
     noOfAnalysts: number,
     score: number
+
+}
+
+export enum PriceTarget {
+    HIGH = "High",
+    LOW = "Low",
+    OVERALL = "Overall"
 }
