@@ -61,9 +61,7 @@ def get_closing_price(equity):
     """
     if equity_is_valid(equity):
         close = requests.get(f"https://cloud.iexapis.com/stable/stock/{equity}/quote/close?token={settings.IEXCLOUD_TOKEN}").json()
-        timestamp = datetime.now().timestamp()
-
-        return {"close": close, "timestamp": timestamp}
+        return close
 
 
 def parse_data(data: list, timescale: str) -> list:
@@ -86,3 +84,10 @@ def parse_data(data: list, timescale: str) -> list:
             raise MissingData
 
     return parsed_data
+
+
+def get_volume_and_market_share(equity_symbol: str):
+    response = requests.get(url=f"https://cloud.iexapis.com/stable/stock/{equity_symbol}/quote?token={settings.IEXCLOUD_TOKEN}").json()
+    volume, market_share = response['volume'], response['iexMarketPercent']
+
+    return volume, market_share
