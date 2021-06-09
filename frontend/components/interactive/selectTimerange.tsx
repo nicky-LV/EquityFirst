@@ -4,7 +4,7 @@ import { RootState } from "../../redux/store";
 import { TIMESCALE } from '../../ts/types';
 
 export default function SelectTimerange() {
-    const timescale = useSelector((store: RootState) => store.timescale)
+    const timescale = useSelector((store: RootState) => store.info.timescale)
     const dispatch = useDispatch()
 
     function updateTimescale(e){

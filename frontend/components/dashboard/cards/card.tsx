@@ -3,14 +3,14 @@ import {ReactNode} from "react";
 
 export default function Card(props : CardProps){
     return (
-        <div className="bg-white flex flex-col overflow-hidden border-gray-200 shadow-md rounded-lg w-full">
+        <div className="bg-white flex flex-col overflow-hidden border border-gray-200 shadow-sm rounded-lg w-full h-full">
             {props.header && (
                 <CardHeader header={props.header}>
                     {props.headerContent}
                 </CardHeader>
             )}
 
-            <div className="px-4 flex flex-col justify-center gap-12">
+            <div className="flex flex-col justify-center gap-12 h-full px-4">
                 {props.children}
             </div>
 

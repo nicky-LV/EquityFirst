@@ -10,11 +10,11 @@ export default function TechnicalIndicatorButton(props: TechnicalIndicatorButton
     }
 
     return(
-        <div className="rounded-md bg-gray-800 flex-grow w-full p-2">
+        <div className="rounded-md bg-gray-800 flex-grow p-2">
             <Switch.Group as="div" className="flex items-center justify-between">
                 <Switch.Label as="span" className="flex-grow flex flex-col" passive>
-                    <span className="text-sm font-medium text-white"><span className="font-bold">{props.name}</span></span>
-                    <span className="text-sm text-gray-200">{props.description}</span>
+                    <span className="text-sm font-medium text-gray-100"><span className="font-bold">{props.name}</span></span>
+                    <span className="text-xs text-gray-300 w-4/5">{props.description}</span>
                 </Switch.Label>
                 <Switch
                     checked={enabled}
@@ -28,7 +28,7 @@ export default function TechnicalIndicatorButton(props: TechnicalIndicatorButton
                     <span
                         aria-hidden="true"
                         className={classNames(
-                            enabled ? 'translate-x-5' : 'translate-x-0 bg-white',
+                            enabled ? 'translate-x-5' : 'translate-x-0 bg-gray-500',
                             'pointer-events-none inline-block h-5 w-5 rounded-full bg-white transform ring-0 transition ease-in-out duration-200'
                         )}
                     />

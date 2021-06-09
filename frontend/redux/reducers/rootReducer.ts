@@ -1,7 +1,7 @@
-import {SET_TICKER_OPTIONS, SET_SELECTED_EQUITY, SET_TECHNICAL_INDICATOR, SET_TIMESCALE, SET_HISTORICAL_DATA, SET_REALTIME_WS} from "./constants";
-import {TIMESCALE} from "../ts/types";
+import {SET_TICKER_OPTIONS, SET_SELECTED_EQUITY, SET_TECHNICAL_INDICATOR, SET_TIMESCALE, SET_HISTORICAL_DATA, SET_REALTIME_WS} from "../constants";
+import {TIMESCALE, REALTIME_WS_ENUM, intialStoreStateType} from "../../ts/types";
 
-export function rootReducer(storeState=initialStoreState, dispatch){
+export default function rootReducer(storeState=initialStoreState, dispatch){
     switch (dispatch.type) {
         case SET_TICKER_OPTIONS:
             return Object.assign({}, storeState, {tickerOptions: dispatch.payload})
@@ -59,22 +59,10 @@ export function rootReducer(storeState=initialStoreState, dispatch){
             return Object.assign({}, storeState)
     }
 }
-
-interface intialStoreStateType {
-    price: number | null;
-    selectedEquity: string,
-    technicalIndicator: string,
-    timescale: TIMESCALE,
-    realtimeWS: WebSocket | null,
-}
-const initialStoreState: intialStoreStateType = {
-    price: null,
+export const initialStoreState: intialStoreStateType = {
     selectedEquity: "MSFT",
     technicalIndicator: "SMA",
     timescale: TIMESCALE.DAY,
     realtimeWS: null,
 }
 
-enum REALTIME_WS_ENUM {
-    CHANGE_EQUITY = "CHANGE_EQUITY"
-}

@@ -6,9 +6,10 @@ export default function TechnicalIndicatorList() {
     const query = useQuery("get-technical-indicators", getTechnicalIndicators)
 
     return (
-                <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 h-full">
-                    {query.isSuccess && query.data.data.map((technicalIndicator) => (
-                            <TechnicalIndicatorButton name={technicalIndicator} description="placeholder"/>
+                <div className="grid grid-cols-1 gap-3">
+                        <p className="text-gray-200 text-sm text-left">Technical Indicators</p>
+                    {query.isSuccess && query.data.data.map(({name, description}) => (
+                            <TechnicalIndicatorButton name={name} description={description}/>
                         )
                     )}
                 </div>

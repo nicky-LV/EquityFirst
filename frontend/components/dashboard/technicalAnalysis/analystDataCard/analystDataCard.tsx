@@ -25,15 +25,13 @@ export default function AnalystDataCard() {
     return (
         <Card>
             {priceTargetData && (
-                <div>
                     <div className="grid grid-cols-1 divide-y px-4 py-5 sm:px-6 gap-4">
                         <PriceTargetsHeader noOfAnalysts={4}/>
-                        <div className="grid grid-cols-2 pt-8 gap-4">
+                        <div className="grid 2xl:grid-cols-2 pt-8 gap-4 xl:grid-cols-1">
                             <RecommendationTable recommendations={priceTargetData.recommendations}/>
                             <PriceTargetTable priceTargets={priceTargetData.priceTargets}/>
                         </div>
-                    </div>
-                </div>)}
+                    </div>)}
         </Card>
     )
 }

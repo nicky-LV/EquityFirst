@@ -30,8 +30,8 @@ export enum MOVING_AVG {
 }
 
 export enum PERCENTAGE_TYPE {
-    INCREASE = 'increase',
-    DECREASE = 'decrease'
+    INCREASE = 'INCREASE',
+    DECREASE = 'DECREASE'
 }
 
 export enum Recommendations {
@@ -40,6 +40,17 @@ export enum Recommendations {
     HOLD = "HOLD",
     SELL = "SELL",
     STRONGSELL = "STRONG SELL"
+}
+
+export enum REALTIME_WS_ENUM {
+    CHANGE_EQUITY = "CHANGE_EQUITY"
+}
+
+export interface intialStoreStateType {
+    selectedEquity: string,
+    technicalIndicator: string,
+    timescale: TIMESCALE,
+    realtimeWS: WebSocket | null,
 }
 
 export interface PriceTargetDataType {

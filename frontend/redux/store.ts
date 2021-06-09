@@ -1,8 +1,10 @@
 import {createStore} from "redux";
-import {rootReducer} from "./reducers";
 import {combineReducers} from "redux";
+import DataReducer from "./reducers/dataReducer";
+import rootReducer from "./reducers/rootReducer";
 
-const store = createStore(rootReducer)
+const mainReducer = combineReducers({technical: DataReducer, info: rootReducer})
+const store = createStore(mainReducer)
 
 export default store
 

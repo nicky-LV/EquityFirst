@@ -1,5 +1,3 @@
-import 'tailwindcss/tailwind.css';
-import '../styles/globals.css';
 import {QueryClientProvider, QueryClient} from "react-query";
 import {Provider} from "react-redux";
 import store from "../redux/store";

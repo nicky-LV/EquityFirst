@@ -4,18 +4,16 @@ import {ArrowSmDownIcon, ArrowSmUpIcon} from '@heroicons/react/solid'
 import {useEffect, useState} from "react";
 
 import {PERCENTAGE_TYPE} from "../../ts/types";
-import {SET_REALTIME_WS} from "../../redux/constants";
+import {SET_CLOSE, SET_PERCENTAGE, SET_PRICE, SET_REALTIME_WS, SET_TYPE} from "../../redux/constants";
 
 function classNames(...classes){
     return classes.join(" ")
 }
 const EquityPrice = () => {
-    const [price, updatePrice] = useState<number | null>(null);
-    const [percentage, setPercentage] = useState<number | null>(null);
-    const [increaseType, setIncreaseType] = useState<PERCENTAGE_TYPE | null>(null);
+    const [price, percentage, type] = useSelector((store: RootState) => [store.technical.price, store.technical.percentage, store.technical.type])
 
     // Redux selected equity
-    const equity = useSelector((store: RootState) => store.selectedEquity)
+    const equity = useSelector((store: RootState) => store.info.selectedEquity)
     const dispatch = useDispatch()
 
     useEffect(() => {
@@ -31,22 +29,28 @@ const EquityPrice = () => {
         // Handle server data.
         ws.onmessage = (data) => {
             const serverData: serverDataType = JSON.parse(data.data)
-            console.log(serverData)
             const {price, close, type, percentage} = serverData
 
-            // Update price state.
-            updatePrice(() => price)
-
-            // Update percentage.
-            setPercentage(percentage)
-
-            // Set percentage increase/decrease type.
-            if (type === PERCENTAGE_TYPE.INCREASE){
-                setIncreaseType(PERCENTAGE_TYPE.INCREASE)
-            }
-            else{
-                setIncreaseType(PERCENTAGE_TYPE.DECREASE)
-            }
+            // Update equity's price.
+            dispatch({
+                type: SET_PRICE,
+                payload: price
+            })
+            // Update equity's closing price.
+            dispatch({
+                type: SET_CLOSE,
+                payload: close
+            })
+            // Update equity's percentage change.
+            dispatch({
+                type: SET_PERCENTAGE,
+                payload: percentage
+            })
+            // Update equity's percentage change type (increase / decrease).
+            dispatch({
+                type: SET_TYPE,
+                payload: type
+            })
         }
     }, [])
 
@@ -57,9 +61,9 @@ const EquityPrice = () => {
             <p className="my-1 text-3xl font-semibold text-white">$ {price && price.toFixed(2)}</p>
             <div className="mt-1 inline-block">
                 <div
-                    className={classNames(increaseType === PERCENTAGE_TYPE.INCREASE ? "bg-green-100" : "bg-red-100", "rounded-full flex flex-grow-0 items-center content-start px-3")}>
+                    className={classNames(type === PERCENTAGE_TYPE.INCREASE ? "bg-green-100" : "bg-red-100", "rounded-full flex flex-grow-0 items-center content-start px-3")}>
 
-                    {increaseType === PERCENTAGE_TYPE.INCREASE ?
+                    {type === PERCENTAGE_TYPE.INCREASE ?
                             <>
                                 <ArrowSmUpIcon
                                     className="flex-shrink-0 h-5 w-5 text-green-800"

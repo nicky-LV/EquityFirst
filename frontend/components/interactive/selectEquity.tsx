@@ -12,7 +12,7 @@ function classNames(...classes) {
 }
 
 export default function SelectEquity() {
-    const equity = useSelector((store: RootState) => store.selectedEquity)
+    const equity = useSelector((store: RootState) => store.info.selectedEquity)
     const dispatch = useDispatch()
     const response = useQuery("fetchEquity", getEquitySymbols)
 

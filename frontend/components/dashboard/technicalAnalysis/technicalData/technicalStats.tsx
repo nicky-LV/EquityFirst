@@ -1,21 +1,41 @@
 import StatsRow from "./statsRow";
 import Card from "../../cards/card";
-
-const stats = [
-    { name: 'Total Subscribers', stat: '71,897', previousStat: '70,946', change: '12%', changeType: 'increase' },
-    { name: 'Avg. Open Rate', stat: '58.16%', previousStat: '56.14%', change: '2.02%', changeType: 'increase' },
-    { name: 'Avg. Open Rate', stat: '58.16%', previousStat: '56.14%', change: '2.02%', changeType: 'increase' },
-    { name: 'Avg. Open Rate', stat: '58.16%', previousStat: '56.14%', change: '2.02%', changeType: 'increase' },
-
-]
+import {useQuery} from "react-query";
+import {useSelector} from "react-redux";
+import {RootState} from "../../../../redux/store";
+import GetEquityStats from "../../../../pages/api/getEquityStats";
 
 export default function TechnicalStats() {
+    const [equity, technicalIndicator, close] = useSelector((store: RootState) => [store.info.selectedEquity, store.info.technicalIndicator, store.technical.close])
+    const query = useQuery('equityStats', () => GetEquityStats(equity))
     return (
         <Card>
-            <div>
-                <StatsRow pair={[stats[0], stats[1]]} />
-                <StatsRow pair={[stats[0], stats[1]]} />
-            </div>
+            {query.isSuccess &&
+            (
+                <>
+                    <StatsRow pair={
+                        [{
+                            name: "Close",
+                            stat: close},
+
+                            {
+                                name: "P/E Ratio",
+                                stat: query.data.data.pe_ratio
+                            }]} />
+
+                    <StatsRow pair={
+                        [{
+                            name: technicalIndicator,
+                            stat: "Placeholder"
+                        },
+                            {
+                            name: "Volume",
+                            stat: query.data.data.volume
+                        }
+                        ]} />
+                </>
+            )
+            }
         </Card>
     )
 }
