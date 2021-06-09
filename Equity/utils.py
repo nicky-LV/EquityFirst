@@ -60,7 +60,7 @@ def get_closing_price(equity):
     {"close": float, "timestamp": int}
     """
     if equity_is_valid(equity):
-        close = requests.get(f"https://cloud.iexapis.com/stable/stock/{equity}/quote/close?token={settings.IEXCLOUD_TOKEN}").json()
+        close = requests.get(f"https://cloud.iexapis.com/stable/stock/{equity}/quote?token={settings.IEXCLOUD_TOKEN}").json()['iexClose']
         return close
 
 
@@ -86,8 +86,10 @@ def parse_data(data: list, timescale: str) -> list:
     return parsed_data
 
 
-def get_volume_and_market_share(equity_symbol: str):
-    response = requests.get(url=f"https://cloud.iexapis.com/stable/stock/{equity_symbol}/quote?token={settings.IEXCLOUD_TOKEN}").json()
-    volume, market_share = response['volume'], response['iexMarketPercent']
+def get_volume_and_pe_ratio(equity_symbol: str):
+    vol_url = f"https://cloud.iexapis.com/stable/stock/{equity_symbol}/quote?token={settings.IEXCLOUD_TOKEN}"
+    response = requests.get(url=vol_url).json()
+    # pe_ratio = current stock price / earnings per share. pe_ratio can indicate whether an equity is over/under valued.
+    volume, pe_ratio = response['volume'], response['peRatio']
 
-    return volume, market_share
+    return volume, pe_ratio

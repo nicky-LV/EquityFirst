@@ -131,7 +131,7 @@ class Equity:
             "price": self.price,
             "close": self.close,
             "type": type_(percentage),
-            "percentage": abs(percentage)
+            "percentage": percentage
         }
 
 

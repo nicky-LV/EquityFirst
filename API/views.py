@@ -4,8 +4,11 @@ from rest_framework import status
 from rest_framework.exceptions import ValidationError
 
 from .serializers import MovingAverageSerializer
+
 from Equity.constants import equity_symbols, technical_indicators
 from Equity.classes import Equity
+from Equity.decorators import valid_equity_required
+from Equity.exceptions import InvalidEquity
 
 
 class MovingAverage(APIView):
@@ -46,3 +49,20 @@ class GetCloseData(APIView):
     def get(self, request, equity):
         close_price = Equity(equity=equity).close
         return Response(data=close_price, status=status.HTTP_200_OK)
+
+
+class GetEquityStats(APIView):
+    @valid_equity_required
+    def get(self, request, equity):
+        try:
+            equity_object = Equity(equity=equity)
+            volume, pe_ratio, close = equity_object.volume, equity_object.pe_ratio, equity_object.close
+            data = {
+                "volume": volume if volume else None,
+                "pe_ratio": pe_ratio if pe_ratio else None,
+                "close": close if close else None
+            }
+            return Response(data=data, status=status.HTTP_200_OK)
+
+        except InvalidEquity:
+            return Response(data="Invalid equity symbol", status=status.HTTP_404_NOT_FOUND)
