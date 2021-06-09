@@ -5,6 +5,7 @@ from typing import Union
 
 from django.conf import settings
 from Redis.classes import Redis
+from Redis.utils import get_data
 
 from .utils import timescale_is_valid, parse_data
 from .decorators import valid_equity_required, valid_timescale_required
@@ -64,11 +65,34 @@ class Equity:
         Returns closing information (close price, timestamp) for a specified equity symbol.
         :return: dict {'close': float, 'timestamp' int}
         """
-        return self.db.get(key=f"{self.equity}-close")
+        return self.db.get(key=f"{self.equity}-stats")['close']
 
     @close.setter
-    def close(self, payload: dict):
-        self.db.set(key=f"{self.equity}-close", value=payload, permanent=True)
+    def close(self, payload: float):
+        available_data = get_data(key=f"{self.equity}-stats")
+        available_data['close'] = payload
+        self.db.set(key=f"{self.equity}-stats", value=available_data, permanent=True)
+
+    @property
+    def volume(self):
+        return self.db.get(key=f"{self.equity}-stats")['volume']
+
+    @volume.setter
+    def volume(self, _volume: float):
+        available_data = get_data(key=f"{self.equity}-stats")
+        available_data['volume'] = _volume
+        self.db.set(key=f"{self.equity}-stats", value=available_data, permanent=True)
+
+    @property
+    def pe_ratio(self):
+        return self.db.get(key=f"{self.equity}-stats")['pe_ratio']
+
+    @pe_ratio.setter
+    def pe_ratio(self, _pe_ratio: float):
+        if _pe_ratio > 0:
+            available_data = get_data(key=f"{self.equity}-stats")
+            available_data['pe_ratio'] = _pe_ratio
+            self.db.set(key=f"{self.equity}-stats", value=available_data, permanent=True)
 
     @property
     def historical_data(self):
@@ -100,15 +124,16 @@ class Equity:
         }
         :return:
         """
-        percentage = ((self.price - self.close['close']) / self.close['close']) * 100
+        percentage = ((self.price - self.close) / self.close) * 100
         type_ = lambda diff: "DECREASE" if diff < 0 else "INCREASE"
 
         return {
             "price": self.price,
-            "close": self.close['close'],
+            "close": self.close,
             "type": type_(percentage),
             "percentage": abs(percentage)
         }
+
 
 class EquityMovingAvg(Equity):
     """
