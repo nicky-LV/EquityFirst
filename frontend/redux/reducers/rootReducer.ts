@@ -1,5 +1,5 @@
-import {SET_TICKER_OPTIONS, SET_SELECTED_EQUITY, SET_TECHNICAL_INDICATOR, SET_TIMESCALE, SET_HISTORICAL_DATA, SET_REALTIME_WS} from "../constants";
-import {TIMESCALE, REALTIME_WS_ENUM, intialStoreStateType} from "../../ts/types";
+import {SET_TICKER_OPTIONS, SET_SELECTED_EQUITY, SET_TECHNICAL_INDICATOR, SET_TIMESCALE, SET_HISTORICAL_DATA, SET_REALTIME_WS, SET_TECHNICAL_INDICATOR_LIST} from "../constants";
+import {TIMESCALE, REALTIME_WS_ENUM, initialStoreStateType} from "../../ts/types";
 
 export default function rootReducer(storeState=initialStoreState, dispatch){
     switch (dispatch.type) {
@@ -33,8 +33,11 @@ export default function rootReducer(storeState=initialStoreState, dispatch){
         case SET_REALTIME_WS:
             return Object.assign({}, storeState, {realtimeWS: dispatch.payload})
 
+        case SET_TECHNICAL_INDICATOR_LIST:
+            return Object.assign({}, storeState, {technicalIndicatorList: dispatch.payload})
+
         /**
-         * Sets the splitted historical data into the redux store.
+         * Sets the split historical data into the redux store.
          * Sets the "initial" data in the "data" key of the redux store.
          */
         case SET_HISTORICAL_DATA:
@@ -59,10 +62,12 @@ export default function rootReducer(storeState=initialStoreState, dispatch){
             return Object.assign({}, storeState)
     }
 }
-export const initialStoreState: intialStoreStateType = {
+export const initialStoreState: initialStoreStateType = {
     selectedEquity: "MSFT",
-    technicalIndicator: "SMA",
     timescale: TIMESCALE.DAY,
     realtimeWS: null,
+    technicalIndicator: "SMA",
+    allowedTechnicalIndicators: [],
+    technicalIndicatorList: []
 }
 

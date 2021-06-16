@@ -46,11 +46,13 @@ export enum REALTIME_WS_ENUM {
     CHANGE_EQUITY = "CHANGE_EQUITY"
 }
 
-export interface intialStoreStateType {
+export interface initialStoreStateType {
     selectedEquity: string,
-    technicalIndicator: string,
     timescale: TIMESCALE,
     realtimeWS: WebSocket | null,
+    technicalIndicator: string,
+    allowedTechnicalIndicators: string[] | [],
+    technicalIndicatorList: []
 }
 
 export interface PriceTargetDataType {
