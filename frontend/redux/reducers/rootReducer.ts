@@ -1,13 +1,17 @@
 import {
+    REMOVE_TECHNICAL_INDICATOR,
     SET_HISTORICAL_DATA,
     SET_REALTIME_WS,
     SET_SELECTED_EQUITY,
     SET_TECHNICAL_INDICATOR,
     SET_TICKER_OPTIONS,
     SET_TIMESCALE,
-    technicalIndicatorCombos
+    technicalIndicatorCombos,
 } from "../constants";
-import {initialStoreStateType, REALTIME_WS_ENUM, TIMESCALE} from "../../ts/types";
+
+import {initialStoreStateType, REALTIME_WS_ENUM, TIMESCALE, TECHNICAL_INDICATORS} from "../../ts/types";
+import {useDispatch} from "react-redux";
+
 
 export default function rootReducer(storeState=initialStoreState, dispatch){
     switch (dispatch.type) {
@@ -33,41 +37,63 @@ export default function rootReducer(storeState=initialStoreState, dispatch){
             /** Sets the technical indicator within the redux store and finds overlapping
              * "allowed" technical indicators which can be chosen by the user. **/
 
+            let validIndicators: string[] = []
 
-            const comboList: any = []
-            const possibleIndicators: string[] = []
+            if (storeState.allowedTechnicalIndicators.length >= 1){
+                // Populate possible combos.
+                const indicator_combos: string[][] = []
+                storeState.technicalIndicators.forEach((indicator_) => {
+                    indicator_combos.push(technicalIndicatorCombos[indicator_])
+                })
+                // Concat the combo from the indicator we want to select.
+                indicator_combos.push(technicalIndicatorCombos[dispatch.payload])
 
-            // Updates comboList with the "possible" indicators that the user can choose.
-            if (storeState.technicalIndicators.length >= 1){
-                for (let i=0; i<storeState.technicalIndicators.length; i++){
-                    const technicalIndicator = storeState.technicalIndicators[i]
-                    comboList.push(technicalIndicatorCombos[technicalIndicator])
-                }
-            }
+                const first_combo = indicator_combos[0]
+                first_combo.forEach((indicator) => {
+                    let count = 0;
+                    indicator_combos.forEach((combo) => {
+                        if (combo.includes(indicator)){
+                            count++
+                        }
 
-            // Check if an indicator is in every "possible" combination in comboList. If so, it's valid.
-            // If an indicator has to be present in *all* combos, then we can just check which indicators are valid
-            // in the first combo.
-
-            if (comboList.length >= 1){
-                const first_entry = comboList[0]
-                first_entry.forEach((possibleIndicator: string) => {
-                    let indicatorCount: number = 0
-                    comboList.forEach((combo) => {
-                        if (combo.includes(possibleIndicator)){
-                            indicatorCount++
+                        else{
+                           console.log(combo + " doesn't include " + indicator)
                         }
                     })
 
-                    if (indicatorCount == comboList.length){
-                        possibleIndicators.push(possibleIndicator)
+                    if (count == indicator_combos.length){
+                        validIndicators.push(indicator)
                     }
+
                 })
             }
 
+            else {
+                validIndicators = technicalIndicatorCombos[dispatch.payload]
+            }
+
+
+            /** Update redux store **/
             return Object.assign({}, storeState, {
                 technicalIndicators: storeState.technicalIndicators.concat(dispatch.payload),
-                allowedTechnicalIndicators: possibleIndicators
+                allowedTechnicalIndicators: validIndicators
+            })
+
+        case REMOVE_TECHNICAL_INDICATOR:
+            // Remove technical indicator from redux store
+            let validIndicators_: string[] = []
+            if (storeState.technicalIndicators.length == 1) {
+                validIndicators_ = Object.keys(TECHNICAL_INDICATORS)
+            }
+
+            else {
+                // todo: here
+                validIndicators_ = getValidIndicatorCombos(storeState, dispatch)
+            }
+
+            return Object.assign({}, storeState, {
+                technicalIndicators: storeState.technicalIndicators.filter((indicator) => indicator !== dispatch.payload),
+                allowedTechnicalIndicators: validIndicators_
             })
 
         case SET_TIMESCALE:
@@ -105,6 +131,47 @@ export default function rootReducer(storeState=initialStoreState, dispatch){
             return Object.assign({}, storeState)
     }
 }
+
+function getValidIndicatorCombos(storeState, payload){
+    // array of possibly valid indicators
+    const comboList: any = []
+
+    // array of valid indicators.
+    let validIndicators: string[] = []
+
+    // Updates comboList with the "possible" indicators that the user can choose.
+    if (storeState.technicalIndicators.length >= 1){
+        for (let i=0; i<storeState.technicalIndicators.length; i++){
+            const technicalIndicator = storeState.technicalIndicators[i]
+            comboList.push(technicalIndicatorCombos[technicalIndicator])
+        }
+
+        /** Get valid indicator combinations **/
+        if (comboList.length >= 1){
+            const first_entry = comboList[0]
+            first_entry.forEach((possibleIndicator: string) => {
+                let indicatorCount: number = 0
+                comboList.forEach((combo) => {
+                    if (combo.includes(possibleIndicator)){
+                        indicatorCount++
+                    }
+                })
+
+                // If indicator is in each valid combination, it's a valid choice.
+                if (indicatorCount == comboList.length){
+                    validIndicators.push(possibleIndicator)
+                }
+            })
+        }
+    }
+
+    else {
+        validIndicators = Object.keys(TECHNICAL_INDICATORS)
+    }
+
+    return validIndicators
+}
+
 export const initialStoreState: initialStoreStateType = {
     selectedEquity: "MSFT",
     timescale: TIMESCALE.DAY,

@@ -1,6 +1,7 @@
 export const SET_TICKER_OPTIONS = "SET_TICKER_OPTIONS";
 export const SET_SELECTED_EQUITY = "SET_SELECTED_EQUITY";
 export const SET_TECHNICAL_INDICATOR = "SET_TECHNICAL_INDICATOR";
+export const REMOVE_TECHNICAL_INDICATOR = "REMOVE_TECHNICAL_INDICATOR"
 export const SET_TIMESCALE = "SET_TIMESCALE";
 export const SET_HISTORICAL_DATA = "SET_HISTORICAL_DATA";
 export const SET_REALTIME_WS = "SET_REALTIME_WS";
@@ -13,14 +14,14 @@ import {TIMESCALE, TECHNICAL_INDICATORS} from "../ts/types";
 
 export const technicalIndicatorCombos: indicatorComboType = {
     "SMA": ["SMA", "EMA", "RSI"],
-    "EMA": ["EMA", "SMA, RSI"],
-    "RSI": ["RSI", "SMA", "EMA"],
-    "STOCH": [],
-    "MACD": [],
-    "ADX": []
+    "EMA": ["SMA", "EMA", "RSI"],
+    "RSI": ["SMA", "EMA", "RSI"],
+    "STOCH": ["STOCH"],
+    "MACD": ["MACD"],
+    "ADX": ["ADX"]
 }
 
-const technicalIndicators = ["SMA", "EMA", "RSI", "STOCH", "MACD", "ADX"]
+export const technicalIndicators = ["SMA", "EMA", "RSI", "STOCH", "MACD", "ADX"]
 
 export const TIME_SCALE_VALUES = [TIMESCALE.DAY, TIMESCALE.WEEK, TIMESCALE.MONTH, TIMESCALE.YEAR]
 
@@ -28,7 +29,7 @@ interface indicatorComboType {
     [TECHNICAL_INDICATORS.SMA]: string[],
     [TECHNICAL_INDICATORS.EMA]: string[],
     [TECHNICAL_INDICATORS.RSI]: string[],
-    [TECHNICAL_INDICATORS.STOCH]: [],
-    [TECHNICAL_INDICATORS.MACD]: [],
-    [TECHNICAL_INDICATORS.ADX]: []
+    [TECHNICAL_INDICATORS.STOCH]: string[],
+    [TECHNICAL_INDICATORS.MACD]: string[],
+    [TECHNICAL_INDICATORS.ADX]: string[]
 }
