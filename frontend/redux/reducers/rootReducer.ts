@@ -1,5 +1,13 @@
-import {SET_TICKER_OPTIONS, SET_SELECTED_EQUITY, SET_TECHNICAL_INDICATOR, SET_TIMESCALE, SET_HISTORICAL_DATA, SET_REALTIME_WS, SET_TECHNICAL_INDICATOR_LIST} from "../constants";
-import {TIMESCALE, REALTIME_WS_ENUM, initialStoreStateType} from "../../ts/types";
+import {
+    SET_HISTORICAL_DATA,
+    SET_REALTIME_WS,
+    SET_SELECTED_EQUITY,
+    SET_TECHNICAL_INDICATOR,
+    SET_TICKER_OPTIONS,
+    SET_TIMESCALE,
+    technicalIndicatorCombos
+} from "../constants";
+import {initialStoreStateType, REALTIME_WS_ENUM, TIMESCALE} from "../../ts/types";
 
 export default function rootReducer(storeState=initialStoreState, dispatch){
     switch (dispatch.type) {
@@ -22,7 +30,45 @@ export default function rootReducer(storeState=initialStoreState, dispatch){
             }
 
         case SET_TECHNICAL_INDICATOR:
-            return Object.assign({}, storeState, {technicalIndicator: dispatch.payload})
+            /** Sets the technical indicator within the redux store and finds overlapping
+             * "allowed" technical indicators which can be chosen by the user. **/
+
+
+            const comboList: any = []
+            const possibleIndicators: string[] = []
+
+            // Updates comboList with the "possible" indicators that the user can choose.
+            if (storeState.technicalIndicators.length >= 1){
+                for (let i=0; i<storeState.technicalIndicators.length; i++){
+                    const technicalIndicator = storeState.technicalIndicators[i]
+                    comboList.push(technicalIndicatorCombos[technicalIndicator])
+                }
+            }
+
+            // Check if an indicator is in every "possible" combination in comboList. If so, it's valid.
+            // If an indicator has to be present in *all* combos, then we can just check which indicators are valid
+            // in the first combo.
+
+            if (comboList.length >= 1){
+                const first_entry = comboList[0]
+                first_entry.forEach((possibleIndicator: string) => {
+                    let indicatorCount: number = 0
+                    comboList.forEach((combo) => {
+                        if (combo.includes(possibleIndicator)){
+                            indicatorCount++
+                        }
+                    })
+
+                    if (indicatorCount == comboList.length){
+                        possibleIndicators.push(possibleIndicator)
+                    }
+                })
+            }
+
+            return Object.assign({}, storeState, {
+                technicalIndicators: storeState.technicalIndicators.concat(dispatch.payload),
+                allowedTechnicalIndicators: possibleIndicators
+            })
 
         case SET_TIMESCALE:
             switch (dispatch.payload){
@@ -32,9 +78,6 @@ export default function rootReducer(storeState=initialStoreState, dispatch){
 
         case SET_REALTIME_WS:
             return Object.assign({}, storeState, {realtimeWS: dispatch.payload})
-
-        case SET_TECHNICAL_INDICATOR_LIST:
-            return Object.assign({}, storeState, {technicalIndicatorList: dispatch.payload})
 
         /**
          * Sets the split historical data into the redux store.
@@ -66,8 +109,7 @@ export const initialStoreState: initialStoreStateType = {
     selectedEquity: "MSFT",
     timescale: TIMESCALE.DAY,
     realtimeWS: null,
-    technicalIndicator: "SMA",
-    allowedTechnicalIndicators: [],
-    technicalIndicatorList: []
+    technicalIndicators: ["SMA"],
+    allowedTechnicalIndicators: technicalIndicatorCombos["SMA"]
 }
 

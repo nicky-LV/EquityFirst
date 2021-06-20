@@ -50,9 +50,8 @@ export interface initialStoreStateType {
     selectedEquity: string,
     timescale: TIMESCALE,
     realtimeWS: WebSocket | null,
-    technicalIndicator: string,
-    allowedTechnicalIndicators: string[] | [],
-    technicalIndicatorList: []
+    technicalIndicators: string[] | [],
+    allowedTechnicalIndicators: string[] | []
 }
 
 export interface PriceTargetDataType {
@@ -67,4 +66,13 @@ export enum PriceTarget {
     HIGH = "High",
     LOW = "Low",
     OVERALL = "Overall"
+}
+
+export enum TECHNICAL_INDICATORS {
+    SMA = "SMA",
+    EMA = "EMA",
+    RSI = "RSI",
+    STOCH = "STOCH",
+    MACD = "MACD",
+    ADX = "ADX"
 }
