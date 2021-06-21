@@ -21,11 +21,21 @@ export default function rootReducer(storeState=initialStoreState, dispatch){
         case SET_SELECTED_EQUITY:
             // Checks if realtime data websocket is established.
             // If so, we must tell the server to track the price of the new equity.
-            if(storeState.realtimeWS) {
-                storeState.realtimeWS.send(JSON.stringify({
-                    type: REALTIME_WS_ENUM.CHANGE_EQUITY,
-                    equity: dispatch.payload
-                }))
+            if(storeState.realtimeWS){
+                if (storeState.technicalIndicators.length >= 1){
+                    storeState.realtimeWS.send(JSON.stringify({
+                        type: REALTIME_WS_ENUM.CHANGE_EQUITY,
+                        equity: dispatch.payload,
+                        technicalIndicators: storeState.technicalIndicators
+                    }))
+                }
+
+                else {
+                    storeState.realtimeWS.send(JSON.stringify({
+                        type: REALTIME_WS_ENUM.CHANGE_EQUITY,
+                        equity: dispatch.payload,
+                    }))
+                }
                 return Object.assign({}, storeState, {selectedEquity: dispatch.payload})
             }
 
@@ -57,7 +67,7 @@ export default function rootReducer(storeState=initialStoreState, dispatch){
                         }
 
                         else{
-                           console.log(combo + " doesn't include " + indicator)
+                            console.log(combo + " doesn't include " + indicator)
                         }
                     })
 
