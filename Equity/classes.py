@@ -5,11 +5,11 @@ from typing import Union
 
 from django.conf import settings
 from Redis.classes import Redis
-from Redis.utils import get_data
+from Redis.utils import get_cached_data
 
-from .utils import timescale_is_valid, parse_data
+from .utils import parse_data
 from .decorators import valid_equity_required, valid_timescale_required
-from .constants import equity_symbols, timescales
+from .constants import equity_symbols
 from .exceptions import *
 
 
@@ -69,7 +69,7 @@ class Equity:
 
     @close.setter
     def close(self, payload: float):
-        available_data = get_data(key=f"{self.equity}-stats")
+        available_data = get_cached_data(key=f"{self.equity}-stats")
         available_data['close'] = payload
         self.db.set(key=f"{self.equity}-stats", value=available_data, permanent=True)
 
@@ -79,7 +79,7 @@ class Equity:
 
     @volume.setter
     def volume(self, _volume: float):
-        available_data = get_data(key=f"{self.equity}-stats")
+        available_data = get_cached_data(key=f"{self.equity}-stats")
         available_data['volume'] = _volume
         self.db.set(key=f"{self.equity}-stats", value=available_data, permanent=True)
 
@@ -90,7 +90,7 @@ class Equity:
     @pe_ratio.setter
     def pe_ratio(self, _pe_ratio: float):
         if _pe_ratio > 0:
-            available_data = get_data(key=f"{self.equity}-stats")
+            available_data = get_cached_data(key=f"{self.equity}-stats")
             available_data['pe_ratio'] = _pe_ratio
             self.db.set(key=f"{self.equity}-stats", value=available_data, permanent=True)
 
@@ -139,11 +139,10 @@ class EquityMovingAvg(Equity):
     """
     EquityMovingAvg is a separate class as it can encapsulate both the SMA and EMA indicators.
     """
+    @valid_timescale_required
     def __init__(self, equity: str, timescale: str, exponential: bool):
         super().__init__(equity=equity)
-
-        if timescale_is_valid(timescale=timescale):
-            self.timescale = timescale
+        self.timescale = timescale
 
         # String representation of indicator
         self.moving_average_indicator: str = "SMA" if not exponential else "EMA"
@@ -205,19 +204,28 @@ class EquityMovingAvg(Equity):
         return parsed_data
 
 
-class EquityIndicators(Equity):
+class EquityTechnicalInfo(Equity):
+    # Todo: Add a util function that checks for duplicate data within the database before appending to it.
+    @valid_timescale_required
     def __init__(self, equity: str, timescale: str):
         super().__init__(equity=equity)
+        self.timescale = timescale
 
-        # Verifies that specified time_range is valid
-        if timescale in timescales:
-            self.time_range = timescale
-        else:
-            if timescale is None:
-                raise TimeRangeRequired("A time range must be specified.")
+    @property
+    def moving_average(self, exponential=False):
+        return EquityMovingAvg(equity=self.equity, timescale=self.timescale, exponential=exponential).moving_average
 
-            else:
-                raise InvalidTimescale("Passed time_range parameter is not a valid time range.")
+    @property
+    def rsi(self) -> Union[float, int]:
+        return self.db.get(key=f"{self.equity}-RSI")
+
+    @rsi.setter
+    def rsi(self, rsi_data: list) -> None:
+        cached_data = get_cached_data(key=f"{self.equity}-RSI")
+        for rsi_data_ in rsi_data:
+            cached_data.append(rsi_data_)
+
+        self.db.set(key=f"{self.equity}-RSI", value=cached_data)
 
     @property
     def bbands(self) -> list:
@@ -247,7 +255,7 @@ class EquityIndicators(Equity):
         input2 = 2
 
         parsed_data = []
-        data = requests.get(f"https://cloud.iexapis.com/stable/stock/{self.equity}/indicator/bbands?range={self.time_range}&input1={input1}&input2={input2}&token={self.IEX_TOKEN}").json()
+        data = requests.get(f"https://cloud.iexapis.com/stable/stock/{self.equity}/indicator/bbands?range={self.timescale}&input1={input1}&input2={input2}&token={self.IEX_TOKEN}").json()
 
         indicator_key, chart_key = data.keys()
 

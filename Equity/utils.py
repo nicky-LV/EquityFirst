@@ -1,8 +1,12 @@
 from datetime import datetime, timedelta
 import requests
+from typing import Union
+
 from django.conf import settings
 
-from .constants import equity_symbols, timescales, ma_types
+from Redis.utils import get_cached_data
+from Equity.decorators import valid_equity_required, valid_timescale_required
+from .constants import timescales, ma_types, technical_indicators
 from .exceptions import *
 
 
@@ -23,19 +27,6 @@ def market_is_open():
     return open_
 
 
-def equity_is_valid(equity: str):
-    if equity.upper() in equity_symbols:
-        return True
-    raise InvalidEquity
-
-
-def timescale_is_valid(timescale: str):
-    # Verifies that specified time_range is valid
-    if timescale in timescales:
-        return True
-    raise InvalidTimescale("Timescale is invalid.")
-
-
 def ma_type_is_valid(ma_type: str):
     if ma_type in ma_types:
         return True
@@ -48,20 +39,38 @@ def is_exponential(ma_type: str):
     return False
 
 
+@valid_equity_required
 def get_price(equity):
-    if equity_is_valid(equity):
-        return requests.get(f"https://cloud.iexapis.com/stable/stock/{equity}/price?token={settings.IEXCLOUD_TOKEN}").json()
+    return requests.get(f"https://cloud.iexapis.com/stable/stock/{equity}/price?token={settings.IEXCLOUD_TOKEN}").json()
 
 
+@valid_equity_required
 def get_closing_price(equity):
     """ [GET] Requests the closing price for a specified equity.
     :param equity: str - The equity you want the closing price for.
     :return: dict - Returns a dictionary with keys: "close" & "timestamp"
     {"close": float, "timestamp": int}
     """
-    if equity_is_valid(equity):
-        close = requests.get(f"https://cloud.iexapis.com/stable/stock/{equity}/quote?token={settings.IEXCLOUD_TOKEN}").json()['iexClose']
-        return close
+    close = requests.get(f"https://cloud.iexapis.com/stable/stock/{equity}/quote?token={settings.IEXCLOUD_TOKEN}").json()['iexClose']
+    return close
+
+
+def get_rsi(equity, timescale="1m"):
+    data = requests.get(url=f"https://cloud.iexapis.com/stable/stock/{equity}/indicator/rsi?range={timescale}&token={settings.IEXCLOUD_TOKEN}").json()
+    indicator_data, chart_data = data['indicator'][0], data['chart']
+
+    rsi_data = []
+    for idx, indicator_value in enumerate(indicator_data):
+        if indicator_value:
+            rsi: Union[float, int] = indicator_value
+            # Date in format YYYY-MM-DD
+            date = chart_data[idx]['date']
+            rsi_data.append({
+                'RSI': rsi,
+                date: date
+            })
+
+    return rsi_data
 
 
 def parse_data(data: list, timescale: str) -> list:
@@ -93,3 +102,7 @@ def get_volume_and_pe_ratio(equity_symbol: str):
     volume, pe_ratio = response['volume'], response['peRatio']
 
     return volume, pe_ratio
+
+def get_indicator_data(equity):
+    for indicator in technical_indicators:
+        data = requests.get(url=f"https://cloud.iexapis.com/stable/stock/{equity}/indicator/{indicator}?token={settings.IEXCLOUD_TOKEN}").json()

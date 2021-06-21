@@ -1,5 +1,18 @@
-from .utils import equity_is_valid, timescale_is_valid
-from .exceptions import InvalidEquity
+from .exceptions import InvalidEquity, InvalidTimescale
+from .constants import equity_symbols, timescales
+
+
+def equity_is_valid(equity: str):
+    if equity.upper() in equity_symbols:
+        return True
+    raise InvalidEquity
+
+
+def timescale_is_valid(timescale: str):
+    # Verifies that specified time_range is valid
+    if timescale in timescales:
+        return True
+    raise InvalidTimescale("Timescale is invalid.")
 
 
 def valid_equity_required(func):
@@ -18,6 +31,6 @@ def valid_timescale_required(func):
     """ Decorator for ensuring timescales are valid. """
     def wrapper(*args, timescale, **kwargs):
         if timescale_is_valid(timescale=timescale):
-            func(*args, timescale, **kwargs)
+            return func(*args, timescale=timescale, **kwargs)
 
     return wrapper

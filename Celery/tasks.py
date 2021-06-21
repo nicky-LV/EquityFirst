@@ -1,7 +1,8 @@
 from celery import shared_task
 from .utils import *
+
 from Equity.utils import *
-from Equity.classes import EquityMovingAvg
+from Equity.classes import EquityMovingAvg, EquityTechnicalInfo
 
 
 @shared_task
@@ -54,3 +55,11 @@ def cache_sma():
     for equity in equity_symbols:
         obj = EquityMovingAvg(equity=equity, timescale="1M", exponential=False)
         obj.set_moving_average()
+
+
+@shared_task
+def cache_rsi():
+    """ Caches RSI values for each equity in the format: [{date: YYYY-MM-DD, RSI: Union[float, int]}, ...]"""
+    for equity in equity_symbols:
+        obj = EquityTechnicalInfo(equity=equity, timescale="1M")
+        obj.rsi = get_rsi(equity=equity)
