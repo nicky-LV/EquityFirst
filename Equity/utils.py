@@ -55,22 +55,70 @@ def get_closing_price(equity):
     return close
 
 
-def get_rsi(equity, timescale="1m"):
-    data = requests.get(url=f"https://cloud.iexapis.com/stable/stock/{equity}/indicator/rsi?range={timescale}&token={settings.IEXCLOUD_TOKEN}").json()
-    indicator_data, chart_data = data['indicator'][0], data['chart']
+def get_technical_data(equity, technical_indicator=None, timescale="1m"):
+    def get_data(equity_=equity, technical_indicator_=None, timescale_="1m"):
+        # Retrieve cached data of that technical indicator already
+        cached_data = get_cached_data(key=f"{equity_}-{technical_indicator_}")
 
-    rsi_data = []
-    for idx, indicator_value in enumerate(indicator_data):
-        if indicator_value:
-            rsi: Union[float, int] = indicator_value
-            # Date in format YYYY-MM-DD
-            date = chart_data[idx]['date']
-            rsi_data.append({
-                'RSI': rsi,
-                date: date
-            })
+        # Handle duplicate information
+        # List of dates to query our data against. If both entries have the same date, we skip over it.
+        cached_dates = [data['date'] for data in cached_data if cached_data]
 
-    return rsi_data
+        data = requests.get(
+            url=f"https://cloud.iexapis.com/stable/stock/{equity_}/indicator/rsi?range={timescale_}&token={settings.IEXCLOUD_TOKEN}")
+
+        if data.status_code == 200:
+            data = data.json()
+            indicator_data, chart_data = data['indicator'][0], data['chart']
+
+            for idx, indicator_data in enumerate(indicator_data):
+                date = chart_data[idx]['date']
+
+                # Entry with this date does not already exist in the db.
+                if date not in cached_dates and indicator_data is not None:
+                    cached_data.append({
+                        "date": date,
+                        technical_indicator: indicator_data
+                    })
+
+            return cached_data
+
+    def get_macd_data(equity_=equity, timescale_=timescale):
+        data = requests.get(
+            url=f"https://cloud.iexapis.com/stable/stock/{equity_}/indicator/MACD?range={timescale_}&token={settings.IEXCLOUD_TOKEN}")
+
+        if data.status_code == 200:
+            # Retrieve cached data of that technical indicator already
+            cached_data = get_cached_data(key=f"{equity_}-MACD")
+
+            # --- Handle duplicate information ---
+            # List of dates to query our data against. If both entries have the same date, we skip over it.
+            cached_dates = [data['date'] for data in cached_data if cached_data]
+
+            data = data.json()
+
+            # MACD values, macd_signal (9 day EMA of macd values), and macd histogram data
+            macd, macd_signal, macd_histogram = data['indicator'][0], data['indicator'][1], data['indicator'][2]
+            chart_data = data['chart']
+
+            for idx, indicator_data in enumerate(macd):
+                date = chart_data[idx]['date']
+
+                if date not in cached_dates and macd[idx] is not None:
+                    cached_data.append({
+                        'date': date,
+                        'MACD': macd[idx],
+                        'MACD_SIGNAL': macd_signal[idx],
+                        'MACD_HISTOGRAM': macd_histogram[idx]
+                    })
+
+            return cached_data
+
+    if technical_indicator.upper() == "MACD":
+        return get_macd_data(equity_=equity, timescale_="3m")
+
+    elif technical_indicator.upper != "MACD" and technical_indicator:
+        return get_data(equity_=equity, technical_indicator_=technical_indicator, timescale_=timescale)
 
 
 def parse_data(data: list, timescale: str) -> list:

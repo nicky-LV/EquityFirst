@@ -216,7 +216,7 @@ class EquityTechnicalInfo(Equity):
         return EquityMovingAvg(equity=self.equity, timescale=self.timescale, exponential=exponential).moving_average
 
     @property
-    def rsi(self) -> Union[float, int]:
+    def rsi(self) -> list:
         return self.db.get(key=f"{self.equity}-RSI")
 
     @rsi.setter
@@ -225,7 +225,31 @@ class EquityTechnicalInfo(Equity):
         for rsi_data_ in rsi_data:
             cached_data.append(rsi_data_)
 
-        self.db.set(key=f"{self.equity}-RSI", value=cached_data)
+        self.db.set(key=f"{self.equity}-RSI", value=cached_data, permanent=True)
+
+    @property
+    def stoch(self) -> list:
+        return self.db.get(key=f"{self.equity}-STOCH")
+
+    @stoch.setter
+    def stoch(self, stoch_data: list):
+        self.db.set(key=f"{self.equity}-STOCH", value=stoch_data, permanent=True)
+
+    @property
+    def adx(self) -> list:
+        return self.db.get(key=f"{self.equity}-ADX")
+
+    @adx.setter
+    def adx(self, adx_data: list):
+        self.db.set(key=f"{self.equity}-ADX", value=adx_data, permanent=True)
+
+    @property
+    def macd(self) -> list:
+        return self.db.get(key=f"{self.equity}-MACD")
+
+    @macd.setter
+    def macd(self, macd_data: list) -> None:
+        self.db.set(key=f"{self.equity}-MACD", value=macd_data, permanent=True)
 
     @property
     def bbands(self) -> list:
