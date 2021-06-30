@@ -2,7 +2,7 @@ from celery import shared_task
 from .utils import *
 
 from Equity.utils import *
-from Equity.classes import EquityMovingAvg, EquityTechnicalInfo
+from Equity.classes import EquityTechnicalInfo
 
 
 @shared_task
@@ -51,17 +51,25 @@ def cache_closing_prices():
 
 @shared_task
 def cache_sma():
-    """ Caches SMA values for each equity. """
+    """ Caches SMA values for each equity in the format: [{date: YYYY-MM-DD, SMA: Union[float, int]}, ...]"""
     for equity in equity_symbols:
-        obj = EquityMovingAvg(equity=equity, timescale="1M", exponential=False)
-        obj.set_moving_average()
+        obj = EquityTechnicalInfo(equity=equity)
+        obj.sma = get_technical_data(equity=equity, technical_indicator="SMA", timescale="1m")
+
+
+@shared_task
+def cache_ema():
+    """ Caches EMA values for each equity in the format: [{date: YYYY-MM-DD, EMA: Union[float, int]}, ...]"""
+    for equity in equity_symbols:
+        obj = EquityTechnicalInfo(equity=equity)
+        obj.ema = get_technical_data(equity=equity, technical_indicator="EMA", timescale="1m")
 
 
 @shared_task
 def cache_rsi():
     """ Caches RSI values for each equity in the format: [{date: YYYY-MM-DD, RSI: Union[float, int]}, ...]"""
     for equity in equity_symbols:
-        obj = EquityTechnicalInfo(equity=equity, timescale="1M")
+        obj = EquityTechnicalInfo(equity=equity)
         obj.rsi = get_technical_data(equity=equity, technical_indicator="RSI", timescale="1m")
 
 
@@ -69,7 +77,7 @@ def cache_rsi():
 def cache_stoch():
     """ Caches STOCH values for each equity in the format: [{date: YYYY-MM-DD, STOCH: Union[float, int]}, ...]"""
     for equity in equity_symbols:
-        obj = EquityTechnicalInfo(equity=equity, timescale="1M")
+        obj = EquityTechnicalInfo(equity=equity)
         obj.stoch = get_technical_data(equity=equity, technical_indicator="STOCH", timescale="1m")
 
 
@@ -77,7 +85,7 @@ def cache_stoch():
 def cache_adx():
     """ Caches ADX values for each equity in the format: [{date: YYYY-MM-DD, ADX: Union[float, int]}, ...]"""
     for equity in equity_symbols:
-        obj = EquityTechnicalInfo(equity=equity, timescale="1M")
+        obj = EquityTechnicalInfo(equity=equity)
         obj.adx = get_technical_data(equity=equity, technical_indicator="ADX", timescale="1m")
 
 
@@ -89,5 +97,5 @@ def cache_macd():
     MACD_HISTOGRAM: Union[float, int]}
     """
     for equity in equity_symbols:
-        obj = EquityTechnicalInfo(equity=equity, timescale="1M")
+        obj = EquityTechnicalInfo(equity=equity)
         obj.macd = get_technical_data(equity=equity, technical_indicator="MACD", timescale="1m")
