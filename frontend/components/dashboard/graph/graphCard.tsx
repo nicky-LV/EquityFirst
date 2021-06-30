@@ -6,7 +6,7 @@ import Card from "../cards/card";
 import SelectTimerange from '../../interactive/selectTimerange';
 
 export default function GraphCard(props) {
-    const equity: string = useSelector((store: RootState) => store.selectedEquity)
+    const equity: string = useSelector((store: RootState) => store.info.selectedEquity)
     const moving_average = useMovingAverageData()
 
     useEffect(() => {

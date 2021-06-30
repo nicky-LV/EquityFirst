@@ -42,8 +42,9 @@ export enum Recommendations {
     STRONGSELL = "STRONG SELL"
 }
 
-export enum REALTIME_WS_ENUM {
-    CHANGE_EQUITY = "CHANGE_EQUITY"
+export enum WS_REQ_TYPE {
+    CHANGE_EQUITY = "CHANGE_EQUITY",
+    TECHNICAL_DATA = "TECHNICAL_DATA"
 }
 
 export interface initialStoreStateType {

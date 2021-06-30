@@ -9,7 +9,7 @@ import {
     technicalIndicatorCombos,
 } from "../constants";
 
-import {initialStoreStateType, REALTIME_WS_ENUM, TIMESCALE, TECHNICAL_INDICATORS} from "../../ts/types";
+import {initialStoreStateType, WS_REQ_TYPE, TIMESCALE, TECHNICAL_INDICATORS} from "../../ts/types";
 import {useDispatch} from "react-redux";
 
 
@@ -24,7 +24,7 @@ export default function rootReducer(storeState=initialStoreState, dispatch){
             if(storeState.realtimeWS){
                 if (storeState.technicalIndicators.length >= 1){
                     storeState.realtimeWS.send(JSON.stringify({
-                        type: REALTIME_WS_ENUM.CHANGE_EQUITY,
+                        type: WS_REQ_TYPE.CHANGE_EQUITY,
                         equity: dispatch.payload,
                         technicalIndicators: storeState.technicalIndicators
                     }))
@@ -32,7 +32,7 @@ export default function rootReducer(storeState=initialStoreState, dispatch){
 
                 else {
                     storeState.realtimeWS.send(JSON.stringify({
-                        type: REALTIME_WS_ENUM.CHANGE_EQUITY,
+                        type: WS_REQ_TYPE.CHANGE_EQUITY,
                         equity: dispatch.payload,
                     }))
                 }

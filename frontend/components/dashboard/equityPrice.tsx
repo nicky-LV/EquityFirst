@@ -1,7 +1,7 @@
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../../redux/store";
 import {ArrowSmDownIcon, ArrowSmUpIcon} from '@heroicons/react/solid'
-import {useEffect, useState} from "react";
+import {useEffect} from "react";
 
 import {PERCENTAGE_TYPE} from "../../ts/types";
 import {SET_CLOSE, SET_PERCENTAGE, SET_PRICE, SET_REALTIME_WS, SET_TYPE} from "../../redux/constants";
@@ -10,15 +10,18 @@ function classNames(...classes){
     return classes.join(" ")
 }
 const EquityPrice = () => {
-    const [price, percentage, type] = useSelector((store: RootState) => [store.technical.price, store.technical.percentage, store.technical.type])
+    const [price, percentage, type] = useSelector((store: RootState) => [store.technical.price,
+        store.technical.percentage,
+        store.technical.type])
 
     // Redux selected equity
-    const equity = useSelector((store: RootState) => store.info.selectedEquity)
+    const equity: string = useSelector((store: RootState) => store.info.selectedEquity)
+    const technicalIndicators: string[] = useSelector((store: RootState) => store.info.technicalIndicators)
     const dispatch = useDispatch()
 
     useEffect(() => {
         // Realtime-data WS object.
-        const ws = new WebSocket(`${process.env.NEXT_PUBLIC_WS_URI}/realtime-price/${equity}/`)
+        const ws: WebSocket = new WebSocket(`${process.env.NEXT_PUBLIC_WS_URI}/realtime-price/${equity}/`)
 
         // Saving WS object in store. (To send re-group request for new equity data).
         dispatch({
