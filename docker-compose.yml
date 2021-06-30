@@ -16,7 +16,7 @@ services:
   redis:
     image: redis
     volumes:
-      - ./docker-volume
+      - .:.
     ports: 
       - "6379"
 
