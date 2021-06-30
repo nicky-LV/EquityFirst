@@ -7,7 +7,7 @@ from django.conf import settings
 from Redis.classes import Redis
 from Redis.utils import get_cached_data
 
-from .utils import parse_data
+from .utils import parse_data, get_ma_data
 from .decorators import valid_equity_required, valid_timescale_required
 from .constants import equity_symbols
 from .exceptions import *
@@ -135,85 +135,25 @@ class Equity:
         }
 
 
-class EquityMovingAvg(Equity):
-    """
-    EquityMovingAvg is a separate class as it can encapsulate both the SMA and EMA indicators.
-    """
-    @valid_timescale_required
-    def __init__(self, equity: str, timescale: str, exponential: bool):
-        super().__init__(equity=equity)
-        self.timescale = timescale
-
-        # String representation of indicator
-        self.moving_average_indicator: str = "SMA" if not exponential else "EMA"
-
-    @property
-    def moving_average(self) -> list:
-        """Returns cached moving_averages in format {date: "%Y-%m-%d", "sma"/"ema": float}"""
-        data = self.db.get(key=f"{self.equity}-{self.moving_average_indicator}")
-        if self.timescale == "ytd":
-            return data
-
-        parse_data(data, self.timescale)
-
-    def set_moving_average(self) -> None:
-        """
-        Caches the moving average (simple or exponential) into database.
-        """
-
-        available_data = []
-        try:
-            available_data = self.db.get(f"{self.equity}-{self.moving_average_indicator}")
-
-        except KeyError:
-            pass
-
-        data = self.get_moving_avg()
-
-        # Apply data to available_data
-        for ma_dict in data:
-            date = ma_dict['date']
-            ma = ma_dict[self.moving_average_indicator]
-            # Ensures we do not handle duplicate data
-            if date not in available_data:
-                available_data.append({
-                    "date": date,
-                    self.moving_average_indicator: ma
-                })
-
-        # Cached to Redis database.
-        self.db.set(key=f"{self.equity}-{self.moving_average_indicator}", value=available_data, permanent=True)
-
-    def get_moving_avg(self) -> list:
-        """
-        Returns the moving average (simple or exponential) sorted in ascending order.
-        :return: list - [{"date": "%Y-%m-%d", "sma/ema": float, ...}]
-        """
-        parsed_data = []
-        data = requests.get(f"https://cloud.iexapis.com/stable/stock/{self.equity}/indicator/{self.moving_average_indicator}?range={self.timescale}&token={self.IEX_TOKEN}").json()
-
-        ma, chart = data
-
-        for index, ma in enumerate(reversed(data[ma][0])):
-            if ma is not None:
-                parsed_data.append({
-                    "date": data[chart][index]["date"],
-                    self.moving_average_indicator: float(ma)
-                })
-
-        return parsed_data
-
-
 class EquityTechnicalInfo(Equity):
-    # Todo: Add a util function that checks for duplicate data within the database before appending to it.
-    @valid_timescale_required
-    def __init__(self, equity: str, timescale: str):
+    def __init__(self, equity: str):
         super().__init__(equity=equity)
-        self.timescale = timescale
 
     @property
-    def moving_average(self, exponential=False):
-        return EquityMovingAvg(equity=self.equity, timescale=self.timescale, exponential=exponential).moving_average
+    def sma(self) -> list:
+        return self.db.get(key=f"{self.equity}-SMA")
+
+    @sma.setter
+    def sma(self, sma_data: list) -> None:
+        self.db.set(key=f"{self.equity}-SMA", value=sma_data, permanent=True)
+
+    @property
+    def ema(self) -> list:
+        return self.db.get(key=f"{self.equity}-EMA")
+
+    @ema.setter
+    def ema(self, ema_data: list) -> None:
+        self.db.set(key=f"{self.equity}-EMA", value=ema_data, permanent=True)
 
     @property
     def rsi(self) -> list:
