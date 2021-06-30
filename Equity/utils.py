@@ -55,8 +55,8 @@ def get_closing_price(equity):
     return close
 
 
-def get_technical_data(equity, technical_indicator=None, timescale="1m"):
-    def get_data(equity_=equity, technical_indicator_=None, timescale_="1m"):
+def get_technical_data(equity, technical_indicator=None, timescale="1M"):
+    def get_data(equity_=equity, technical_indicator_=None, timescale_="1M"):
         # Retrieve cached data of that technical indicator already
         cached_data = get_cached_data(key=f"{equity_}-{technical_indicator_}")
 
@@ -143,6 +143,13 @@ def parse_data(data: list, timescale: str) -> list:
     return parsed_data
 
 
+def get_ma_data(equity: str, indicator="SMA", timescale: str = "1M"):
+    data = requests.get(
+        f"https://cloud.iexapis.com/stable/stock/{equity}/indicator/{indicator}?range={timescale}&token={settings.IEXCLOUD_TOKEN}").json()
+
+    return data
+
+
 def get_volume_and_pe_ratio(equity_symbol: str):
     vol_url = f"https://cloud.iexapis.com/stable/stock/{equity_symbol}/quote?token={settings.IEXCLOUD_TOKEN}"
     response = requests.get(url=vol_url).json()
@@ -150,6 +157,7 @@ def get_volume_and_pe_ratio(equity_symbol: str):
     volume, pe_ratio = response['volume'], response['peRatio']
 
     return volume, pe_ratio
+
 
 def get_indicator_data(equity):
     for indicator in technical_indicators:

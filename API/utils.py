@@ -1,6 +1,6 @@
 from rest_framework.validators import ValidationError
 
-from Equity.utils import equity_is_valid, timescale_is_valid, ma_type_is_valid
+from Equity.decorators import equity_is_valid, timescale_is_valid
 from Equity.exceptions import *
 
 """
@@ -28,7 +28,11 @@ def serializer_timescale_is_valid(timescale: str):
 
 def serializer_ma_type_is_valid(ma_type: str):
     try:
-        ma_type_is_valid(ma_type)
+        if ma_type.upper() == "EMA" or ma_type.upper() == "SMA":
+            return True
+
+        else:
+            return False
 
     except InvalidMovingAvgType:
-        raise ValidationError("Invalid Moving Average Type. It must be either SMA or MA.")
+        raise ValidationError("Invalid Moving Average Type. It must be either SMA or EMA.")
