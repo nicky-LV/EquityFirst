@@ -4,7 +4,7 @@ import functools
 
 from .models import Channels, Groups
 
-from Equity.classes import Equity
+from Equity.classes import Equity, EquityTechnicalInfo
 from Equity.exceptions import MissingPriceData
 
 
@@ -13,6 +13,7 @@ class RealtimePriceConsumer(AsyncJsonWebsocketConsumer):
         super().__init__()
         self.equity = None
         self.equity_obj = None
+        self.equity_technical_obj = None
         self.group_name = None
         self.group = None
         self.channel = None
@@ -23,6 +24,7 @@ class RealtimePriceConsumer(AsyncJsonWebsocketConsumer):
         """
         self.equity = self.scope['url_route']['kwargs']['equity']
         self.equity_obj = Equity(equity=self.equity)
+        self.equity_technical_obj = EquityTechnicalInfo(equity=self.equity)
         # Assign channel to group within database, so we can query it within Celery tasks.
         await self.assign_channel_to_group()
         # Add channel to group within channel layer
@@ -38,15 +40,30 @@ class RealtimePriceConsumer(AsyncJsonWebsocketConsumer):
         except MissingPriceData:
             pass
 
-    async def receive_json(self, content, **kwargs):
+    async def receive_json(self, content: dict, **kwargs):
         # Client has changed their selected equity.
         if content['type'] == "CHANGE_EQUITY":
             # Updates selected equity of channel.
             self.equity = content['equity']
             self.equity_obj = Equity(equity=self.equity)
-            # Updates price shown to client.
+            self.equity_technical_obj = EquityTechnicalInfo(equity=self.equity)
+
+            new_equity_data = self.equity_obj.websocket_data
+
+            if content['technicalIndicators']:
+                technical_data: list = []
+                technical_indicators: list = content['technicalIndicators']
+
+                for indicator in technical_indicators:
+                    technical_data.append(
+                        {"indicator": indicator.upper(),
+                         "data": getattr(self.equity_technical_obj, indicator.lower())
+                         })
+
+                new_equity_data["technicalData"] = technical_data
+
             await self.update_price({
-                "text": self.equity_obj.websocket_data
+                'data': new_equity_data
             })
 
     async def disconnect(self, code):
@@ -55,7 +72,7 @@ class RealtimePriceConsumer(AsyncJsonWebsocketConsumer):
 
     async def update_price(self, data):
         # Checks if market is open (thus a price update is available)
-        ws_data = data['text']
+        ws_data = data['data']
         await self.send_json(content=ws_data)
 
     def get_channel(self):
