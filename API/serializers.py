@@ -2,7 +2,6 @@ from rest_framework import serializers
 
 from .utils import *
 from .decorators import validated_data_required
-from Equity.utils import is_exponential
 from Equity.classes import EquityTechnicalInfo
 
 
@@ -14,8 +13,6 @@ class MovingAverageSerializer(serializers.Serializer):
     @validated_data_required
     def calculate_ma(self):
         equity = self.validated_data['equity']
-        timescale = self.validated_data['timescale']
-        exponential = is_exponential(self.validated_data['ma_type'])
 
         # Retrieve parsed & cached moving average
         equity_ma = getattr(EquityTechnicalInfo(equity=equity), self.validated_data['ma_type'])
