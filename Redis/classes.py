@@ -25,7 +25,7 @@ def remaining_time():
 
 class Redis:
     def __init__(self):
-        self.db = redis.Redis(host='localhost', port=6379, db=1)
+        self.db = redis.Redis(host='redis', port=6379, db=1)
         # default expiration date (in seconds)
         self.default_expiry = 10
 
