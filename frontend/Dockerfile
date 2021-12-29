@@ -1,3 +1,4 @@
 FROM node:latest
-COPY ../frontend .
+COPY . /frontend
+WORKDIR /frontend
 RUN npm install
