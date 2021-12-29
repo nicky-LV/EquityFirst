@@ -6,7 +6,12 @@ import sys
 
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'EquityAlpha.settings')
+    if int(os.environ['DEBUG']) == 1:
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'EquityAlpha.settings-dev')
+
+    else:
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'EquityAlpha.settings-prod')
+
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

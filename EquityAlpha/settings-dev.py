@@ -12,9 +12,7 @@ BASE_DIR = Path(__file__).resolve().parent
 SECRET_KEY = 'i43e-pb0h(osd-!d+we)jx&gq%s4tt6=6(tdrnx+_mmwxb4lyz'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-# hostname of our database in production is "db" - docker container name. In prod it is "postgres"
-os.environ["POSTGRES_HOST"] = "localhost" if DEBUG else "db"
+DEBUG = os.environ["DEBUG"]
 
 APPEND_SLASH = True
 # Application definition(s)
@@ -72,11 +70,11 @@ WSGI_APPLICATION = 'EquityAlpha.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': 'localhost',
-        'PORT': 5432,
+        'NAME': os.environ["DB_NAME"],
+        'USER': os.environ["DB_USERNAME"],
+        'PASSWORD': os.environ["DB_PASSWORD"],
+        'HOST': os.environ["DB_HOST"],
+        'PORT': os.environ["DB_PORT"],
     }
 }
 

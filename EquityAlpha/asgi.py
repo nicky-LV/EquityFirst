@@ -14,8 +14,6 @@ from django.urls import path
 from channels.routing import ProtocolTypeRouter, URLRouter
 from API.consumers import RealtimePriceConsumer
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'EquityAlpha.settings')
-
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
 
