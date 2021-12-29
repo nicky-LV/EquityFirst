@@ -1,0 +1,39 @@
+version: '3.3'
+
+services:
+  backend:
+    build: .
+    volumes:
+      - .:/backend
+    command: bash -c "./manage.py makemigrations && ./manage.py migrate --no-input && ./manage.py runserver 0.0.0.0:8000"
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=1
+      - DJANGO_SETTINGS_MODULE=EquityAlpha.settings-dev
+      - DB_NAME=quantative_data
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=gY3KbeYcNm4Beh0uBF0P
+      - DB_HOST=quantative-data.ctzh1bunudxx.eu-west-2.rds.amazonaws.com
+      - DB_PORT=5432
+    depends_on:
+      - redis
+
+  redis:
+    image: redis
+    volumes:
+      - /var/lib/redis:/data
+    ports: 
+      - "6379"
+
+  frontend:
+    build: frontend/
+    command: bash -c "npm run dev"
+    volumes:
+      - ./frontend:/frontend
+    ports:
+      - "3000:3000"
+    depends_on: 
+      - backend
+    environment:
+      - NEXT_PUBLIC_WS_URI=ws://127.0.0.1:8000

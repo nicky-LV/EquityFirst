@@ -1,7 +1,9 @@
 templates
-EquityAlpha/settings.py
+EquityAlpha/settings-dev.py
 .vscode
 .idea
 venv
 .venv
 .pytest_cache
+./docker-compose-dev.yml
+./docker-compose-prod.yml
